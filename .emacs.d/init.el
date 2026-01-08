@@ -87,7 +87,7 @@
 
 ;; --- Font -------------------------------------------------------------------
 (set-face-attribute 'default nil
-                    :family "Iosevka Fixed SS12"
+                    :family "Iosevka Fixed SS08"
                     :height 120)
 
 ;; --- Theme ------------------------------------------------------------------
