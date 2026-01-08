@@ -1,0 +1,16 @@
+theme = "modus_operandi_tinted"
+
+[editor]
+bufferline = "multiple"
+color-modes = true
+cursorline = true
+end-of-line-diagnostics = "hint"
+line-number = "relative"
+mouse = true
+true-color = true
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
