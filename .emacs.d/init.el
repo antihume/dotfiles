@@ -5,9 +5,6 @@
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
-(require 'use-package)
-(setq use-package-always-ensure t)
-
 ;; --- Cleaner interface ------------------------------------------------------
 (fringe-mode 0)
 (setopt inhibit-startup-screen t)
@@ -23,6 +20,8 @@
 (setopt select-enable-clipboard t)
 (set-default-coding-systems 'utf-8)
 (setopt indent-tabs-mode nil)
+(setopt apropos-do-all t)
+(setopt require-final-newline t)
 
 ;; --- Line numbers -----------------------------------------------------------
 (global-display-line-numbers-mode 1)
@@ -38,6 +37,7 @@
 (pixel-scroll-precision-mode 1)
 (setopt pixel-scroll-precision-interpolate-page t)
 (setopt scroll-margin 0
+        scroll-preserve-screen-position nil
         scroll-step 1)
 
 ;; --- Visual tweaks ----------------------------------------------------------
@@ -51,7 +51,6 @@
 ;; --- Backups out of the way -------------------------------------------------
 (setopt backup-directory-alist '(("." . "~/.emacs.d/backups")))
 (setopt auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-saves/" t)))
-(make-directory "~/.emacs.d/auto-saves/" t)
 
 ;; --- Auto revert (sync with disk) -------------------------------------------
 (global-auto-revert-mode 1)
@@ -75,7 +74,7 @@
 (windmove-default-keybindings)
 
 ;; --- Custom file (keep init.el clean) ---------------------------------------
-(setq custom-file (locate-user-emacs-file "custom.el"))
+(setopt custom-file (locate-user-emacs-file "custom.el"))
 (when (file-exists-p custom-file)
   (load custom-file 'noerror 'nomessage))
 
@@ -210,7 +209,7 @@
   :config
   (meow-leader-define-key
    '("." . consult-find)
-   '("/" . consult-ripgrep)
+   '("/" . consult-grep)
    '("b" . consult-buffer)
    '("l" . consult-line)
    '("o" . consult-outline)
@@ -221,10 +220,12 @@
   :init
   (global-corfu-mode 1)
   (setq corfu-auto t
-        corfu-auto-delay 0.1
-        corfu-auto-prefix 2
+        corfu-auto-delay 0.25
+        corfu-auto-prefix 3
         corfu-cycle t
-        corfu-preselect 'prompt))
+        corfu-preselect 'prompt)
+  :config
+  (corfu-popupinfo-mode 1))
 
 ;; --- vterm (Terminal) -------------------------------------------------------
 (use-package vterm
@@ -234,23 +235,6 @@
   (vterm-mode . (lambda ()
                   (display-line-numbers-mode -1)
                   (hl-line-mode -1))))
-
-;; --- Project.el -------------------------------------------------------------
-(use-package project
-  :ensure nil
-  :init
-  (setq project-switch-commands
-        '((project-find-file "Find file" ?f)
-          (project-find-regexp "Ripgrep" ?r)
-          (project-find-dir "Find dir" ?d)
-          (project-dired "Dired" ?D)
-          (project-eshell "Eshell" ?e)
-          (project-shell "Shell" ?s)))
-  :config
-  (with-eval-after-load 'meow
-    (meow-leader-define-key
-     '("p" . project-switch-project)
-     '("SPC" . project-find-file))))
 
 ;; --- Dired ------------------------------------------------------------------
 (use-package dired
@@ -273,14 +257,10 @@
          (js-mode . eglot-ensure)
          (js-ts-mode . eglot-ensure)
          (typescript-ts-mode . eglot-ensure)
-         (rust-mode . eglot-ensure)
-         (rust-ts-mode . eglot-ensure)
          (c-mode . eglot-ensure)
          (c-ts-mode . eglot-ensure)
          (c++-mode . eglot-ensure)
-         (c++-ts-mode . eglot-ensure)
-         (go-mode . eglot-ensure)
-         (go-ts-mode . eglot-ensure))
+         (c++-ts-mode . eglot-ensure))
   :config
   (setq eglot-autoshutdown t
         eglot-events-buffer-size 0))
@@ -322,7 +302,6 @@
         (javascript "https://github.com/tree-sitter/tree-sitter-javascript")
         (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
         (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-        (rust "https://github.com/tree-sitter/tree-sitter-rust")
         (c "https://github.com/tree-sitter/tree-sitter-c")
         (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
         (toml "https://github.com/tree-sitter/tree-sitter-toml")
@@ -331,15 +310,15 @@
         (css "https://github.com/tree-sitter/tree-sitter-css")))
 
 ;; Prefer tree-sitter modes
-(setq major-mode-remap-alist
-      '((python-mode . python-ts-mode)
-        (javascript-mode . js-ts-mode)
-        (js-mode . js-ts-mode)
-        (typescript-mode . typescript-ts-mode)
-        (rust-mode . rust-ts-mode)
-        (c-mode . c-ts-mode)
-        (c++-mode . c++-ts-mode)
-        (json-mode . json-ts-mode)
-        (css-mode . css-ts-mode)))
+(setopt major-mode-remap-alist
+        '((python-mode . python-ts-mode)
+          (javascript-mode . js-ts-mode)
+          (js-mode . js-ts-mode)
+          (typescript-mode . typescript-ts-mode)
+          (rust-mode . rust-ts-mode)
+          (c-mode . c-ts-mode)
+          (c++-mode . c++-ts-mode)
+          (json-mode . json-ts-mode)
+          (css-mode . css-ts-mode)))
 
 ;;; init.el ends here
