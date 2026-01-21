@@ -1,0 +1,178 @@
+* {
+    font-family: "CommitMono Nerd Font", monospace;
+    font-size: 13px;
+    font-weight: 400;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+/* --- Bar ------------------------------------------------------------------ */
+
+window#waybar {
+    background-color: rgba(0, 0, 0, 0.98);
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* --- Tooltips ------------------------------------------------------------- */
+
+tooltip {
+    background-color: rgba(10, 10, 10, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+}
+
+tooltip label {
+    color: #ffffff;
+    font-size: 11px;
+    padding: 8px 12px;
+}
+
+/* --- Workspaces ----------------------------------------------------------- */
+
+#workspaces {
+    margin-left: 12px;
+    padding: 0;
+    background-color: transparent;
+}
+
+#workspaces button {
+    background-color: transparent;
+    color: #535353;
+    padding: 0 8px;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    font-size: 12px;
+    min-width: 18px;
+    transition: color 100ms ease-out;
+}
+
+#workspaces button.active {
+    color: #ffffff;
+}
+
+#workspaces button:hover {
+    color: #c6daff;
+}
+
+#workspaces button.urgent {
+    color: #ff9580;
+}
+
+/* --- Separator ------------------------------------------------------------ */
+
+#custom-separator {
+    color: #303030;
+    padding: 0 10px;
+    font-size: 11px;
+}
+
+/* --- Window title --------------------------------------------------------- */
+
+#window {
+    color: #989898;
+    font-size: 12px;
+    padding-left: 4px;
+}
+
+/* --- System tray ---------------------------------------------------------- */
+
+#tray {
+    padding: 0 12px;
+}
+
+#tray > .passive {
+    opacity: 0.5;
+}
+
+#tray > .active {
+    opacity: 1;
+}
+
+#tray > .needs-attention {
+    opacity: 1;
+}
+
+#tray menu {
+    background-color: rgba(10, 10, 10, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 4px;
+}
+
+#tray menu menuitem {
+    padding: 4px 8px;
+    color: #989898;
+}
+
+#tray menu menuitem:hover {
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+/* --- Right modules -------------------------------------------------------- */
+
+#language,
+#pulseaudio,
+#custom-uptime,
+#battery,
+#custom-date,
+#clock {
+    color: #989898;
+    font-size: 13px;
+    padding: 0 12px;
+    transition: color 100ms ease-out;
+}
+
+#pulseaudio {
+    font-size: 14px;
+}
+
+#pulseaudio.muted {
+    color: #535353;
+}
+
+#language {
+    font-size: 12px;
+}
+
+#custom-uptime {
+    font-size: 12px;
+}
+
+#battery {
+    font-size: 13px;
+}
+
+#battery.warning {
+    color: #d2b580;
+}
+
+#battery.critical {
+    color: #ff9580;
+}
+
+#custom-date {
+    font-size: 12px;
+    padding-right: 6px;
+}
+
+#clock {
+    font-size: 12px;
+    padding-left: 6px;
+    margin-right: 14px;
+}
+
+/* --- Hover states --------------------------------------------------------- */
+
+#language:hover,
+#pulseaudio:hover,
+#custom-uptime:hover,
+#battery:hover,
+#custom-date:hover,
+#clock:hover {
+    color: #ffffff;
+}

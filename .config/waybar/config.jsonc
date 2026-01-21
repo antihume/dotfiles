@@ -1,0 +1,125 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 32,
+    "spacing": 0,
+    "margin-top": 0,
+    "margin-bottom": 0,
+    "margin-left": 0,
+    "margin-right": 0,
+
+    "modules-left": [
+        "niri/workspaces",
+        "custom/separator",
+        "niri/window"
+    ],
+
+    "modules-center": [],
+
+    "modules-right": [
+        "niri/language",
+        "pulseaudio",
+        "custom/uptime",
+        "tray",
+        "battery",
+        "custom/date",
+        "clock"
+    ],
+
+    // --- System tray --------------------------------------------------------
+
+    "tray": {
+        "icon-size": 16,
+        "spacing": 8,
+        "show-passive-items": true
+    },
+
+    // --- Separator ----------------------------------------------------------
+
+    "custom/separator": {
+        "format": "│",
+        "tooltip": false
+    },
+
+    // --- Workspaces ---------------------------------------------------------
+
+    "niri/workspaces": {
+        "format": "{icon}",
+        "format-icons": {
+            "default": "◇",
+            "active": "◆"
+        }
+    },
+
+    // --- Window title -------------------------------------------------------
+
+    "niri/window": {
+        "format": "{}",
+        "max-length": 40,
+        "tooltip": false
+    },
+
+    // --- Keyboard layout ----------------------------------------------------
+
+    "niri/language": {
+        "format": "{short}",
+        "tooltip": false
+    },
+
+    // --- Audio --------------------------------------------------------------
+
+    "pulseaudio": {
+        "format": "{icon}",
+        "format-muted": "󰝟",
+        "format-icons": {
+            "headphone": "󰋋",
+            "headset": "󰋎",
+            "default": ["󰕿", "󰖀", "󰕾"]
+        },
+        "tooltip-format": "{desc}\n{volume}%",
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+        "on-click-right": "pavucontrol",
+        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+",
+        "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-",
+        "swap-icon-label": false
+    },
+
+    // --- Uptime -------------------------------------------------------------
+
+    "custom/uptime": {
+        "exec": "~/.config/waybar/scripts/uptime.sh",
+        "tooltip": false
+    },
+
+    // --- Battery ------------------------------------------------------------
+
+    "battery": {
+        "interval": 10,
+        "format": "{capacity}%  {icon}",
+        "format-charging": "{capacity}%  󰂄",
+        "format-plugged": "{capacity}%  󱟢",
+        "format-full": "{capacity}%  󱟢",
+        "format-icons": ["󱃍", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+        "tooltip-format": "{timeTo}\n{power}W",
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "swap-icon-label": false
+    },
+
+    // --- Date ---------------------------------------------------------------
+
+    "custom/date": {
+        "exec": "date +'%a  %d  %b'",
+        "interval": 60,
+        "format": "{}",
+        "tooltip": false
+    },
+
+    // --- Clock --------------------------------------------------------------
+
+    "clock": {
+        "format": "{:%I:%M %p}"
+    }
+}
