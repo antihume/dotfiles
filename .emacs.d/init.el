@@ -1,0 +1,60 @@
+(setopt modus-themes-italic-constructs t
+	modus-themes-bold-constructs nil)
+(load-theme 'modus-vivendi)
+
+(set-face-attribute 'default nil
+                    :family "CommitMono Nerd Font Mono"
+                    :height 110)
+
+(setopt display-line-numbers-type 'relative)
+(global-display-line-numbers-mode 1)
+
+(pixel-scroll-precision-mode 1)
+(set-fringe-mode '(8 . 0))
+(global-hl-line-mode 1)
+(recentf-mode 1)
+(column-number-mode 1)
+(winner-mode 1)
+(fido-vertical-mode 1)
+(editorconfig-mode 1)
+(global-visual-wrap-prefix-mode 1)
+
+(setopt which-key-idle-delay 0.3)
+(which-key-mode 1)
+
+(setopt create-lockfiles nil)
+
+(let ((autosave-dir (expand-file-name "auto-saves/" user-emacs-directory)))
+  (make-directory autosave-dir t)
+  (setopt auto-save-file-name-transforms
+          `((".*" ,autosave-dir t))))
+
+(setopt backup-by-copying t
+	delete-old-versions t
+	kept-new-versions 10
+	kept-old-versions 0
+	version-control t)
+
+(let ((backup-dir (expand-file-name "backups/" user-emacs-directory)))
+  (make-directory backup-dir t)
+  (setopt backup-directory-alist
+	  `(("." . ,backup-dir))))
+
+(when (native-comp-available-p)
+  (setopt native-comp-async-report-warnings-errors 'silent))
+
+(setopt custom-file (expand-file-name "custom.el" user-emacs-directory))
+
+(setq treesit-language-source-alist
+   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+     (c "https://github.com/tree-sitter/tree-sitter-c")
+     (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+     (js "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+     (python "https://github.com/tree-sitter/tree-sitter-python")))
+
+(dolist (pair '((bash-mode   . bash-ts-mode)
+                (c-mode      . c-ts-mode)
+                (c++-mode    . c++-ts-mode)
+                (js-mode     . js-ts-mode)
+                (python-mode . python-ts-mode)))
+  (add-to-list 'major-mode-remap-alist pair))
