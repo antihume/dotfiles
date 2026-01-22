@@ -25,7 +25,7 @@ zstyle ':vcs_info:git:*' formats ' %F{cyan}(%b)%f'
 precmd() { vcs_info }
 
 # --- Prompt ------------------------------------------------------------------
-PROMPT='%F{blue}%~%f${vcs_info_msg_0_} %# '
+PROMPT='%F{magenta}%~%f${vcs_info_msg_0_} %# '
 
 # --- Environment -------------------------------------------------------------
 export EDITOR="vim"
