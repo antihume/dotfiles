@@ -9,29 +9,27 @@
 	use-file-dialog nil)
 
 (menu-bar-mode -1)
-(tool-bar-mode -1)
 (scroll-bar-mode -1)
+(tool-bar-mode -1)
 
-(setopt initial-frame-alist `((horizontal-scroll-bars . nil)
-			      (menu-bar-lines . 0)
-			      (tool-bar-lines . 0)
-			      (unsplitabble . nil)
-			      (vertical-scroll-bars . nil)))
+(setopt default-frame-alist `((horizontal-scroll-bars . nil)
+			      (menu-bar-lines         . 0)
+			      (tool-bar-lines         . 0)
+			      (unsplittable           . nil)
+			      (vertical-scroll-bars   . nil)))
 
+(setopt gc-cons-percentage 0.5
+	gc-cons-threshold most-positive-fixnum)
 
-(setopt gc-cons-threshold most-positive-fixnum
-	gc-cons-percentage 0.5)
+(defvar hume--file-name-handler-alist file-name-handler-alist)
+(defvar hume--vc-handled-backends vc-handled-backends)
 
-
-(defvar prot-emacs--file-name-handler-alist file-name-handler-alist)
-(defvar prot-emacs--vc-handled-backends vc-handled-backends)
-
-(setq file-name-handler-alist nil
-      vc-handled-backends nil)
+(setopt file-name-handler-alist nil
+	vc-handled-backends nil)
 
 (add-hook 'emacs-startup-hook
           (lambda ()
-            (setq gc-cons-threshold (* 100 100 8)
-                  gc-cons-percentage 0.1
-                  file-name-handler-alist prot-emacs--file-name-handler-alist
-                  vc-handled-backends prot-emacs--vc-handled-backends)))
+            (setopt gc-cons-threshold (* 64 1024 1024)
+                    gc-cons-percentage 0.1
+                    file-name-handler-alist hume--file-name-handler-alist
+		    vc-handled-backends hume--vc-handled-backends)))

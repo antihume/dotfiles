@@ -1,0 +1,13 @@
+;;; -*- coding: utf-8; mode: lisp-data -*-
+(("/home/antihume/dotfiles/.emacs.d/init.el" . 342)
+ ("/home/antihume/playground/testtest.c" . 19818)
+ ("/home/antihume/playground/test.c" . 1564)
+ ("/home/antihume/dotfiles/.emacs.d/early-init.el" . 342)
+ ("/home/antihume/dotfiles/.emacs.d/"
+  (dired-filename . "/home/antihume/dotfiles/.emacs.d/auto-save-list"))
+ ("/home/antihume/.emacs.d/"
+  (dired-filename . "/home/antihume/.emacs.d/init.el"))
+ ("/home/antihume/Documents/"
+  (dired-filename . "/home/antihume/Documents/dired-testing"))
+ ("/home/antihume/Documents/dired-testing/"
+  (dired-filename . "/home/antihume/Documents")))

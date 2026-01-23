@@ -1,5 +1,6 @@
 (setopt modus-themes-italic-constructs t
-	modus-themes-bold-constructs nil)
+	modus-themes-bold-constructs t)
+
 (load-theme 'modus-vivendi)
 
 (set-face-attribute 'default nil
@@ -10,7 +11,6 @@
 (global-display-line-numbers-mode 1)
 
 (pixel-scroll-precision-mode 1)
-(set-fringe-mode '(8 . 0))
 (global-hl-line-mode 1)
 (recentf-mode 1)
 (column-number-mode 1)
@@ -18,39 +18,42 @@
 (fido-vertical-mode 1)
 (editorconfig-mode 1)
 (global-visual-wrap-prefix-mode 1)
+(delete-selection-mode 1)
+(savehist-mode 1)
+(save-place-mode 1)
+(setopt use-short-answers t)
 
 (setopt which-key-idle-delay 0.3)
 (which-key-mode 1)
 
 (setopt create-lockfiles nil)
 
-(let ((autosave-dir (expand-file-name "auto-saves/" user-emacs-directory)))
-  (make-directory autosave-dir t)
+(let ((auto-save-dir (expand-file-name "auto-save/" user-emacs-directory)))
+  (make-directory auto-save-dir t)
   (setopt auto-save-file-name-transforms
-          `((".*" ,autosave-dir t))))
+          `((".*" ,auto-save-dir t))))
 
 (setopt backup-by-copying t
 	delete-old-versions t
-	kept-new-versions 10
 	kept-old-versions 0
 	version-control t)
 
-(let ((backup-dir (expand-file-name "backups/" user-emacs-directory)))
+(let ((backup-dir (expand-file-name "backup/" user-emacs-directory)))
   (make-directory backup-dir t)
   (setopt backup-directory-alist
-	  `(("." . ,backup-dir))))
+          `(("." . ,backup-dir))))
 
 (when (native-comp-available-p)
   (setopt native-comp-async-report-warnings-errors 'silent))
 
 (setopt custom-file (expand-file-name "custom.el" user-emacs-directory))
 
-(setq treesit-language-source-alist
-   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-     (c "https://github.com/tree-sitter/tree-sitter-c")
-     (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
-     (js "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-     (python "https://github.com/tree-sitter/tree-sitter-python")))
+(setopt treesit-language-source-alist
+	'((bash   "https://github.com/tree-sitter/tree-sitter-bash")
+	  (c      "https://github.com/tree-sitter/tree-sitter-c")
+	  (cpp    "https://github.com/tree-sitter/tree-sitter-cpp")
+	  (js     "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+	  (python "https://github.com/tree-sitter/tree-sitter-python")))
 
 (dolist (pair '((bash-mode   . bash-ts-mode)
                 (c-mode      . c-ts-mode)
