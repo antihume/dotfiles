@@ -119,6 +119,11 @@
   :bind (:map dired-mode-map
               ("<backspace>" . dired-up-directory)))
 
+(use-package org
+  :custom
+  (org-directory "~/Documents/org")
+  (org-return-follows-link t))
+
 (use-package treesit
   :custom
   (treesit-language-source-alist
