@@ -1,63 +1,124 @@
-(setopt modus-themes-italic-constructs t
-	modus-themes-bold-constructs t)
+;; -*- lexical-binding: t; -*-
 
-(load-theme 'modus-vivendi)
+(use-package package
+  :custom
+  (package-archives '(("melpa" . "https://melpa.org/packages/")
+                      ("gnu" . "https://elpa.gnu.org/packages/")
+                      ("nongnu" . "https://elpa.nongnu.org/nongnu/"))))
 
-(set-face-attribute 'default nil
-                    :family "CommitMono Nerd Font Mono"
-                    :height 110)
+(use-package emacs
+  :config
+  (require-theme 'modus-themes)
+  (setq modus-themes-italic-constructs t
+        modus-themes-bold-constructs t)
+  (load-theme 'modus-vivendi :no-confirm))
 
-(setopt display-line-numbers-type 'relative)
-(global-display-line-numbers-mode 1)
+(use-package faces
+  :config
+  (set-face-attribute 'default nil
+                      :family "CommitMono Nerd Font Mono"
+                      :height 110))
 
-(pixel-scroll-precision-mode 1)
-(global-hl-line-mode 1)
-(recentf-mode 1)
-(column-number-mode 1)
-(winner-mode 1)
-(fido-vertical-mode 1)
-(editorconfig-mode 1)
-(global-visual-wrap-prefix-mode 1)
-(delete-selection-mode 1)
-(savehist-mode 1)
-(save-place-mode 1)
-(setopt use-short-answers t)
+(use-package display-line-numbers
+  :custom
+  (display-line-numbers-type 'relative)
+  :hook (prog-mode . display-line-numbers-mode))
 
-(setopt which-key-idle-delay 0.3)
-(which-key-mode 1)
+(use-package hl-line
+  :hook (prog-mode . hl-line-mode))
 
-(setopt create-lockfiles nil)
+(use-package simple
+  :custom
+  (blink-matching-paren t)
+  :hook ((after-init . column-number-mode)
+         (before-save . delete-trailing-whitespace))
+  :config
+  (delete-selection-mode 1))
 
-(let ((auto-save-dir (expand-file-name "auto-save/" user-emacs-directory)))
-  (make-directory auto-save-dir t)
-  (setopt auto-save-file-name-transforms
-          `((".*" ,auto-save-dir t))))
+(use-package minibuffer
+  :custom
+  (enable-recursive-minibuffers t)
+  (use-short-answers t))
 
-(setopt backup-by-copying t
-	delete-old-versions t
-	kept-old-versions 0
-	version-control t)
+(use-package pixel-scroll
+  :hook (after-init . pixel-scroll-precision-mode))
 
-(let ((backup-dir (expand-file-name "backup/" user-emacs-directory)))
-  (make-directory backup-dir t)
-  (setopt backup-directory-alist
-          `(("." . ,backup-dir))))
+(use-package visual-wrap
+  :hook (after-init . global-visual-wrap-prefix-mode))
 
-(when (native-comp-available-p)
-  (setopt native-comp-async-report-warnings-errors 'silent))
+(use-package files
+  :preface
+  (defvar my--backup-dir
+    (expand-file-name "backup/" user-emacs-directory))
+  (defvar my--auto-save-dir
+    (expand-file-name "auto-save/" user-emacs-directory))
+  :custom
+  (create-lockfiles nil)
+  (backup-by-copying t)
+  (delete-old-versions t)
+  (kept-old-versions 0)
+  (version-control t)
+  (require-final-newline t)
+  (backup-directory-alist `(("." . ,my--backup-dir)))
+  (auto-save-file-name-transforms `((".*" ,my--auto-save-dir t)))
+  :init
+  (make-directory my--backup-dir t)
+  (make-directory my--auto-save-dir t))
 
-(setopt custom-file (expand-file-name "custom.el" user-emacs-directory))
+(use-package cus-edit
+  :custom
+  (custom-file (expand-file-name "custom.el" user-emacs-directory)))
 
-(setopt treesit-language-source-alist
-	'((bash   "https://github.com/tree-sitter/tree-sitter-bash")
-	  (c      "https://github.com/tree-sitter/tree-sitter-c")
-	  (cpp    "https://github.com/tree-sitter/tree-sitter-cpp")
-	  (js     "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-	  (python "https://github.com/tree-sitter/tree-sitter-python")))
+(use-package savehist
+  :hook (after-init . savehist-mode))
 
-(dolist (pair '((bash-mode   . bash-ts-mode)
-                (c-mode      . c-ts-mode)
-                (c++-mode    . c++-ts-mode)
-                (js-mode     . js-ts-mode)
-                (python-mode . python-ts-mode)))
-  (add-to-list 'major-mode-remap-alist pair))
+(use-package recentf
+  :hook (after-init . recentf-mode))
+
+(use-package saveplace
+  :hook (after-init . save-place-mode))
+
+(use-package autorevert
+  :hook (after-init . global-auto-revert-mode))
+
+(use-package winner
+  :hook (after-init . winner-mode))
+
+(use-package repeat
+  :hook (after-init . repeat-mode))
+
+(use-package which-key
+  :custom
+  (which-key-idle-delay 0.3)
+  :hook (after-init . which-key-mode))
+
+(use-package editorconfig
+  :hook (after-init . editorconfig-mode))
+
+(use-package dired
+  :custom
+  (delete-by-moving-to-trash t)
+  (dired-dwim-target t)
+  (dired-listing-switches "-lhv --group-directories-first")
+  (dired-recursive-copies 'always)
+  :bind (:map dired-mode-map
+              ("<backspace>" . dired-up-directory)))
+
+(use-package icomplete
+  :hook (after-init . fido-vertical-mode))
+
+(use-package treesit
+  :custom
+  (treesit-language-source-alist
+   '((bash   "https://github.com/tree-sitter/tree-sitter-bash")
+     (c      "https://github.com/tree-sitter/tree-sitter-c")
+     (cpp    "https://github.com/tree-sitter/tree-sitter-cpp")
+     (js     "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+     (python "https://github.com/tree-sitter/tree-sitter-python")))
+  (major-mode-remap-alist
+   '((bash-mode   . bash-ts-mode)
+     (c-mode      . c-ts-mode)
+     (c++-mode    . c++-ts-mode)
+     (js-mode     . js-ts-mode)
+     (python-mode . python-ts-mode))))
+
