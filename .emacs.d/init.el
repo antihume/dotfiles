@@ -99,7 +99,7 @@
   :custom
   (delete-by-moving-to-trash t)
   (dired-dwim-target t)
-  (dired-listing-switches "-lhv --group-directories-first")
+  (dired-listing-switches "-agho --group-directories-first")
   (dired-recursive-copies 'always)
   :bind (:map dired-mode-map
               ("<backspace>" . dired-up-directory)))
