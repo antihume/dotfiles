@@ -8,7 +8,6 @@
     "margin-left": 0,
     "margin-right": 0,
 
-
     "modules-left": [
         "niri/workspaces",
         "custom/separator",
@@ -23,23 +22,8 @@
         "custom/uptime",
         "tray",
         "battery",
-        "custom/date",
         "clock"
     ],
-
-
-    "tray": {
-        "icon-size": 16,
-        "spacing": 8,
-        "show-passive-items": true
-    },
-
-
-    "custom/separator": {
-        "format": "│",
-        "tooltip": false
-    },
-
 
     "niri/workspaces": {
         "format": "{icon}",
@@ -60,6 +44,16 @@
         "tooltip": false
     },
 
+    "custom/separator": {
+        "format": "│",
+        "tooltip": false
+    },
+
+    "custom/uptime": {
+        "exec": "~/.config/waybar/scripts/uptime.sh",
+        "restart-interval": 1,
+        "tooltip": false
+    },
 
     "pulseaudio": {
         "format": "{icon}",
@@ -73,16 +67,14 @@
         "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
         "on-click-right": "pavucontrol",
         "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+",
-        "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-",
-        "swap-icon-label": false
+        "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-"
     },
 
-
-    "custom/uptime": {
-        "exec": "~/.config/waybar/scripts/uptime.sh",
-        "tooltip": false
+    "tray": {
+        "icon-size": 16,
+        "spacing": 8,
+        "show-passive-items": true
     },
-
 
     "battery": {
         "interval": 10,
@@ -95,20 +87,11 @@
         "states": {
             "warning": 30,
             "critical": 15
-        },
-        "swap-icon-label": false
+        }
     },
-
-
-    "custom/date": {
-        "exec": "date +'%a  %d  %b'",
-        "interval": 60,
-        "format": "{}",
-        "tooltip": false
-    },
-
 
     "clock": {
-        "format": "{:%I:%M %p}"
+        "format": "{:%a %d %b   %I:%M %p}",
+        "tooltip": false
     }
 }

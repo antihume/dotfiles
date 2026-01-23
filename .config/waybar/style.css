@@ -1,6 +1,6 @@
 * {
     font-family: "CommitMono Nerd Font", monospace;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 400;
     min-height: 0;
     margin: 0;
@@ -8,30 +8,25 @@
     border: none;
 }
 
-
 window#waybar {
-    background-color: rgba(0, 0, 0, 1);
+    background-color: #000000;
     color: #ffffff;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid #1e1e1e;
 }
 
-
 tooltip {
-    background-color: rgba(10, 10, 10, 0.98);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: #1e1e1e;
+    border: 1px solid #303030;
     border-radius: 6px;
 }
 
 tooltip label {
     color: #ffffff;
-    font-size: 11px;
     padding: 8px 12px;
 }
 
-
 #workspaces {
     margin-left: 12px;
-    padding: 0;
     background-color: transparent;
 }
 
@@ -39,10 +34,6 @@ tooltip label {
     background-color: transparent;
     color: #535353;
     padding: 0 8px;
-    margin: 0;
-    border: none;
-    border-radius: 0;
-    font-size: 12px;
     min-width: 18px;
     transition: color 100ms ease-out;
 }
@@ -52,27 +43,22 @@ tooltip label {
 }
 
 #workspaces button:hover {
-    color: #c6daff;
+    color: #ffffff;
 }
 
 #workspaces button.urgent {
     color: #ff9580;
 }
 
-
 #custom-separator {
     color: #303030;
     padding: 0 10px;
-    font-size: 11px;
 }
-
 
 #window {
     color: #989898;
-    font-size: 12px;
     padding-left: 4px;
 }
-
 
 #tray {
     padding: 0 12px;
@@ -91,8 +77,8 @@ tooltip label {
 }
 
 #tray menu {
-    background-color: rgba(10, 10, 10, 0.98);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: #1e1e1e;
+    border: 1px solid #303030;
     border-radius: 6px;
     padding: 4px;
 }
@@ -103,21 +89,26 @@ tooltip label {
 }
 
 #tray menu menuitem:hover {
-    background-color: #1e1e1e;
+    background-color: #303030;
     color: #ffffff;
 }
-
 
 #language,
 #pulseaudio,
 #custom-uptime,
 #battery,
-#custom-date,
 #clock {
     color: #989898;
-    font-size: 13px;
     padding: 0 12px;
     transition: color 100ms ease-out;
+}
+
+#language:hover,
+#pulseaudio:hover,
+#custom-uptime:hover,
+#battery:hover,
+#clock:hover {
+    color: #ffffff;
 }
 
 #pulseaudio {
@@ -128,18 +119,6 @@ tooltip label {
     color: #535353;
 }
 
-#language {
-    font-size: 12px;
-}
-
-#custom-uptime {
-    font-size: 12px;
-}
-
-#battery {
-    font-size: 13px;
-}
-
 #battery.warning {
     color: #d2b580;
 }
@@ -148,23 +127,6 @@ tooltip label {
     color: #ff9580;
 }
 
-#custom-date {
-    font-size: 12px;
-    padding-right: 6px;
-}
-
 #clock {
-    font-size: 12px;
-    padding-left: 6px;
     margin-right: 14px;
-}
-
-
-#language:hover,
-#pulseaudio:hover,
-#custom-uptime:hover,
-#battery:hover,
-#custom-date:hover,
-#clock:hover {
-    color: #ffffff;
 }
