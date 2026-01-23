@@ -19,9 +19,9 @@
 (setopt frame-inhibit-implied-resize 'force
         frame-resize-pixelwise t
         default-frame-alist '((horizontal-scroll-bars . nil)
-                              (menu-bar-lines         . 0)
-                              (tool-bar-lines         . 0)
-                              (vertical-scroll-bars   . nil)))
+                              (menu-bar-lines . 0)
+                              (tool-bar-lines . 0)
+                              (vertical-scroll-bars . nil)))
 
 (setopt inhibit-startup-buffer-menu t
         inhibit-startup-echo-area-message user-login-name
