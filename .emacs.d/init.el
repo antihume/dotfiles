@@ -12,9 +12,9 @@
   :config
   (require-theme 'modus-themes)
   (setopt modus-themes-italic-constructs t
-          modus-themes-bold-constructs t
-          modus-themes-common-palette-overrides
-          modus-themes-preset-overrides-faint)
+          modus-themes-bold-constructs t)
+  (setopt modus-themes-common-palette-overrides
+	  modus-themes-preset-overrides-faint)
   (load-theme 'modus-vivendi))
 
 (use-package faces
@@ -42,7 +42,11 @@
   (blink-matching-paren t)
   :hook ((after-init . column-number-mode)
          (after-init . delete-selection-mode)
-         (before-save . delete-trailing-whitespace)))
+         (prog-mode . (lambda ()
+			(add-hook 'before-save-hook
+				  #'delete-trailing-whitespace
+				  nil
+				  t)))))
 
 (use-package minibuffer
   :custom
@@ -75,7 +79,7 @@
 
 (use-package cus-edit
   :custom
-  (custom-file (expand-file-name "custom.el" user-emacs-directory)))
+  (custom-file null-device))
 
 (use-package savehist
   :hook (after-init . savehist-mode))
