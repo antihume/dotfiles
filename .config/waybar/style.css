@@ -8,15 +8,13 @@
     border: none;
 }
 
-/* --- Bar ------------------------------------------------------------------ */
 
 window#waybar {
-    background-color: rgba(0, 0, 0, 0.98);
+    background-color: rgba(0, 0, 0, 1);
     color: #ffffff;
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
-/* --- Tooltips ------------------------------------------------------------- */
 
 tooltip {
     background-color: rgba(10, 10, 10, 0.98);
@@ -30,7 +28,6 @@ tooltip label {
     padding: 8px 12px;
 }
 
-/* --- Workspaces ----------------------------------------------------------- */
 
 #workspaces {
     margin-left: 12px;
@@ -62,7 +59,6 @@ tooltip label {
     color: #ff9580;
 }
 
-/* --- Separator ------------------------------------------------------------ */
 
 #custom-separator {
     color: #303030;
@@ -70,7 +66,6 @@ tooltip label {
     font-size: 11px;
 }
 
-/* --- Window title --------------------------------------------------------- */
 
 #window {
     color: #989898;
@@ -78,7 +73,6 @@ tooltip label {
     padding-left: 4px;
 }
 
-/* --- System tray ---------------------------------------------------------- */
 
 #tray {
     padding: 0 12px;
@@ -113,7 +107,6 @@ tooltip label {
     color: #ffffff;
 }
 
-/* --- Right modules -------------------------------------------------------- */
 
 #language,
 #pulseaudio,
@@ -166,7 +159,6 @@ tooltip label {
     margin-right: 14px;
 }
 
-/* --- Hover states --------------------------------------------------------- */
 
 #language:hover,
 #pulseaudio:hover,

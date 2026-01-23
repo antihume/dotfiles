@@ -8,6 +8,7 @@
     "margin-left": 0,
     "margin-right": 0,
 
+
     "modules-left": [
         "niri/workspaces",
         "custom/separator",
@@ -26,7 +27,6 @@
         "clock"
     ],
 
-    // --- System tray --------------------------------------------------------
 
     "tray": {
         "icon-size": 16,
@@ -34,14 +34,12 @@
         "show-passive-items": true
     },
 
-    // --- Separator ----------------------------------------------------------
 
     "custom/separator": {
         "format": "│",
         "tooltip": false
     },
 
-    // --- Workspaces ---------------------------------------------------------
 
     "niri/workspaces": {
         "format": "{icon}",
@@ -51,22 +49,17 @@
         }
     },
 
-    // --- Window title -------------------------------------------------------
-
     "niri/window": {
         "format": "{}",
         "max-length": 40,
         "tooltip": false
     },
 
-    // --- Keyboard layout ----------------------------------------------------
-
     "niri/language": {
         "format": "{short}",
         "tooltip": false
     },
 
-    // --- Audio --------------------------------------------------------------
 
     "pulseaudio": {
         "format": "{icon}",
@@ -84,14 +77,12 @@
         "swap-icon-label": false
     },
 
-    // --- Uptime -------------------------------------------------------------
 
     "custom/uptime": {
         "exec": "~/.config/waybar/scripts/uptime.sh",
         "tooltip": false
     },
 
-    // --- Battery ------------------------------------------------------------
 
     "battery": {
         "interval": 10,
@@ -108,7 +99,6 @@
         "swap-icon-label": false
     },
 
-    // --- Date ---------------------------------------------------------------
 
     "custom/date": {
         "exec": "date +'%a  %d  %b'",
@@ -117,7 +107,6 @@
         "tooltip": false
     },
 
-    // --- Clock --------------------------------------------------------------
 
     "clock": {
         "format": "{:%I:%M %p}"
