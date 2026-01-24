@@ -1,7 +1,7 @@
 {
     "layer": "top",
     "position": "top",
-    "height": 32,
+    "height": 36,
     "spacing": 0,
     "margin-top": 0,
     "margin-bottom": 0,
@@ -10,42 +10,32 @@
 
     "modules-left": [
         "niri/workspaces",
-        "custom/separator",
         "niri/window"
     ],
 
-    "modules-center": [],
-
     "modules-right": [
         "niri/language",
-        "pulseaudio",
         "custom/uptime",
         "tray",
+        "pulseaudio",
         "battery",
         "clock"
     ],
 
     "niri/workspaces": {
-        "format": "{icon}",
-        "format-icons": {
-            "default": "◇",
-            "active": "◆"
-        }
+        "format": "{index}"
     },
 
     "niri/window": {
         "format": "{}",
+        "icon": true,
+        "icon-size": 16,
         "max-length": 40,
         "tooltip": false
     },
 
     "niri/language": {
         "format": "{short}",
-        "tooltip": false
-    },
-
-    "custom/separator": {
-        "format": "│",
         "tooltip": false
     },
 
@@ -56,8 +46,8 @@
     },
 
     "pulseaudio": {
-        "format": "{icon}",
-        "format-muted": "󰝟",
+        "format": "{icon} {volume}%",
+        "format-muted": "󰝟 {volume}%",
         "format-icons": {
             "headphone": "󰋋",
             "headset": "󰋎",
@@ -78,10 +68,10 @@
 
     "battery": {
         "interval": 10,
-        "format": "{capacity}%  {icon}",
-        "format-charging": "{capacity}%  󰂄",
-        "format-plugged": "{capacity}%  󱟢",
-        "format-full": "{capacity}%  󱟢",
+        "format": "{icon} {capacity}%",
+        "format-charging": "󰂄 {capacity}%",
+        "format-plugged": "󱟢 {capacity}%",
+        "format-full": "󱟢 {capacity}%",
         "format-icons": ["󱃍", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
         "tooltip-format": "{timeTo}\n{power}W",
         "states": {
@@ -91,7 +81,7 @@
     },
 
     "clock": {
-        "format": "{:%a %d %b   %I:%M %p}",
+        "format": "{:%a %b %d %I:%M %p}",
         "tooltip": false
     }
 }

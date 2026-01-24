@@ -22,75 +22,44 @@ tooltip {
 
 tooltip label {
     color: #ffffff;
-    padding: 8px 12px;
+    padding: 8px;
 }
 
 #workspaces {
-    margin-left: 12px;
-    background-color: transparent;
+    margin-left: 8px;
 }
 
 #workspaces button {
     background-color: transparent;
+    border: 1px solid #303030;
+    border-radius: 4px;
     color: #535353;
-    padding: 0 8px;
-    min-width: 18px;
-    transition: color 100ms ease-out;
+    margin: 6px 3px;
+    min-width: 0;
+    padding: 2px 6px;
+    transition: all 150ms ease-out;
 }
 
 #workspaces button.active {
+    border-color: #989898;
     color: #ffffff;
+    padding: 2px 12px;
 }
 
 #workspaces button:hover {
+    border-color: #989898;
     color: #ffffff;
 }
 
 #workspaces button.urgent {
+    border-color: #ff9580;
     color: #ff9580;
-}
-
-#custom-separator {
-    color: #303030;
-    padding: 0 10px;
 }
 
 #window {
     color: #989898;
-    padding-left: 4px;
-}
-
-#tray {
-    padding: 0 12px;
-}
-
-#tray > .passive {
-    opacity: 0.5;
-}
-
-#tray > .active {
-    opacity: 1;
-}
-
-#tray > .needs-attention {
-    opacity: 1;
-}
-
-#tray menu {
-    background-color: #1e1e1e;
-    border: 1px solid #303030;
-    border-radius: 6px;
-    padding: 4px;
-}
-
-#tray menu menuitem {
-    padding: 4px 8px;
-    color: #989898;
-}
-
-#tray menu menuitem:hover {
-    background-color: #303030;
-    color: #ffffff;
+    margin-left: 12px;
+    padding: 0 8px;
 }
 
 #language,
@@ -111,12 +80,33 @@ tooltip label {
     color: #ffffff;
 }
 
-#pulseaudio {
-    font-size: 14px;
-}
-
 #pulseaudio.muted {
     color: #535353;
+}
+
+#tray {
+    padding: 0 12px;
+}
+
+#tray > .passive {
+    opacity: 0.5;
+}
+
+#tray menu {
+    background-color: #1e1e1e;
+    border: 1px solid #303030;
+    border-radius: 6px;
+    padding: 4px;
+}
+
+#tray menu menuitem {
+    color: #989898;
+    padding: 4px 8px;
+}
+
+#tray menu menuitem:hover {
+    background-color: #303030;
+    color: #ffffff;
 }
 
 #battery.warning {
@@ -128,5 +118,5 @@ tooltip label {
 }
 
 #clock {
-    margin-right: 14px;
+    margin-right: 8px;
 }
