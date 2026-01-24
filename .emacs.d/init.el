@@ -7,14 +7,13 @@
                       ("nongnu" . "https://elpa.nongnu.org/nongnu/"))))
 
 (use-package emacs
-  :custom
-  (use-short-answers t)
   :config
+  (setq use-short-answers t)
   (require-theme 'modus-themes)
-  (setopt modus-themes-italic-constructs t
-          modus-themes-bold-constructs t)
-  (setopt modus-themes-common-palette-overrides
-	  modus-themes-preset-overrides-faint)
+  (setq modus-themes-italic-constructs t
+        modus-themes-bold-constructs t)
+  (setq modus-themes-common-palette-overrides
+        modus-themes-preset-overrides-faint)
   (load-theme 'modus-vivendi))
 
 (use-package faces
