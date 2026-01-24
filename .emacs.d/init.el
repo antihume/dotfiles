@@ -38,15 +38,17 @@
   :hook (after-init . global-visual-wrap-prefix-mode))
 
 (use-package simple
+  :preface
+  (defun my--delete-trailing-whitespace ()
+    (add-hook 'before-save-hook
+              #'delete-trailing-whitespace
+              nil
+              t))
   :custom
   (blink-matching-paren t)
   :hook ((after-init . column-number-mode)
          (after-init . delete-selection-mode)
-         (prog-mode . (lambda ()
-			(add-hook 'before-save-hook
-				  #'delete-trailing-whitespace
-				  nil
-				  t)))))
+         (prog-mode . my--delete-trailing-whitespace)))
 
 (use-package minibuffer
   :custom
