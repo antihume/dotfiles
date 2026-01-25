@@ -225,3 +225,6 @@
   :config
   (my--meow-setup)
   (meow-global-mode 1))
+
+(use-package magit
+  :ensure t)
