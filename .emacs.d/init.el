@@ -117,6 +117,7 @@
   (dired-dwim-target t)
   (dired-listing-switches "-agho --group-directories-first")
   (dired-recursive-copies 'always)
+  (dired-recursive-deletes 'always)
   :bind (:map dired-mode-map
               ("<backspace>" . dired-up-directory)))
 
