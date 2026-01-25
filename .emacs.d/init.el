@@ -113,8 +113,6 @@
 (use-package editorconfig
   :hook (after-init . editorconfig-mode))
 
-(use-package icomplete
-  :hook (after-init . fido-vertical-mode))
 (use-package dired
   :custom
   (dired-dwim-target t)
