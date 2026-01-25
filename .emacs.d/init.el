@@ -107,7 +107,7 @@
 
 (use-package which-key
   :custom
-  (which-key-idle-delay 1)
+  (which-key-idle-delay 0.5)
   :hook (after-init . which-key-mode))
 
 (use-package editorconfig
