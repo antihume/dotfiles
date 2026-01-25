@@ -8,11 +8,14 @@
 
 (use-package emacs
   :config
-  (setq use-short-answers t)
   (require-theme 'modus-themes)
+  (setq use-short-answers t
+        create-lockfiles nil
+        ring-bell-function 'ignore
+        use-file-dialog nil)
   (setq modus-themes-italic-constructs t
-        modus-themes-bold-constructs t)
-  (setq modus-themes-common-palette-overrides
+        modus-themes-bold-constructs t
+        modus-themes-common-palette-overrides
         modus-themes-preset-overrides-faint)
   (load-theme 'modus-vivendi))
 
@@ -61,8 +64,11 @@
     (expand-file-name "backup/" user-emacs-directory))
   (defvar my--auto-save-dir
     (expand-file-name "auto-save/" user-emacs-directory))
+  :init
+  (make-directory my--backup-dir t)
+  (make-directory my--auto-save-dir t)
   :custom
-  (create-lockfiles nil)
+  (delete-by-moving-to-trash t)
   (backup-by-copying t)
   (delete-old-versions t)
   (kept-old-versions 0)
@@ -75,10 +81,7 @@
      (c-mode . c-ts-mode)
      (c++-mode . c++-ts-mode)
      (js-mode . js-ts-mode)
-     (python-mode . python-ts-mode)))
-  :init
-  (make-directory my--backup-dir t)
-  (make-directory my--auto-save-dir t))
+     (python-mode . python-ts-mode))))
 
 (use-package cus-edit
   :custom
@@ -112,10 +115,8 @@
 
 (use-package icomplete
   :hook (after-init . fido-vertical-mode))
-
 (use-package dired
   :custom
-  (delete-by-moving-to-trash t)
   (dired-dwim-target t)
   (dired-listing-switches "-agho --group-directories-first")
   (dired-recursive-copies 'always)
@@ -134,7 +135,7 @@
    '((bash "https://github.com/tree-sitter/tree-sitter-bash")
      (c "https://github.com/tree-sitter/tree-sitter-c")
      (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
-     (js "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
      (python "https://github.com/tree-sitter/tree-sitter-python"))))
 
 (use-package meow
