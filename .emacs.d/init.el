@@ -48,6 +48,7 @@
               t))
   :custom
   (blink-matching-paren t)
+  (read-extended-command-predicate #'command-completion-default-include-p)
   :hook ((after-init . column-number-mode)
          (prog-mode . my--delete-trailing-whitespace)))
 
