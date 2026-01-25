@@ -244,3 +244,23 @@
   (completion-category-overrides '((file (styles partial-completion))))
   (completion-pcm-leading-wildcard t)
   (completion-styles '(orderless basic)))
+
+(use-package consult
+  :ensure t
+  :bind (([remap switch-to-buffer] . consult-buffer)
+         ([remap project-switch-to-buffer] . consult-project-buffer)
+         ([remap yank-pop] . consult-yank-pop)
+         ([remap goto-line] . consult-goto-line)
+         ([remap imenu] . consult-imenu)
+         ("M-s l" . consult-line)
+         ("M-s r" . consult-ripgrep)
+         ("C-c m" . consult-mode-command)
+         ("C-c h" . consult-history))
+  :init
+  (advice-add #'register-preview :override #'consult-register-window)
+  (setq completion-in-region-function #'consult-completion-in-region
+        register-preview-delay 0.5
+        xref-show-definitions-function #'consult-xref
+        xref-show-xrefs-function #'consult-xref)
+  :config
+  (setq consult-narrow-key "<"))
