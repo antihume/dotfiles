@@ -264,3 +264,8 @@
         xref-show-xrefs-function #'consult-xref)
   :config
   (setq consult-narrow-key "<"))
+
+(use-package marginalia
+  :ensure t
+  :config
+  (marginalia-mode))
