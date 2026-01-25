@@ -22,7 +22,7 @@
 (use-package faces
   :config
   (set-face-attribute 'default nil
-                      :family "CommitMono Nerd Font Mono"
+                      :family "CommitMono"
                       :height 110))
 
 (use-package display-line-numbers
