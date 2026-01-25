@@ -55,6 +55,9 @@
 (use-package delsel
   :hook (after-init . delete-selection-mode))
 
+(use-package mouse
+  :hook (after-init . context-menu-mode))
+
 (use-package minibuffer
   :custom
   (enable-recursive-minibuffers t))
