@@ -228,4 +228,5 @@
   (meow-global-mode 1))
 
 (use-package magit
-  :ensure t)
+  :defer t
+  :commands (magit-status magit-dispatch))
