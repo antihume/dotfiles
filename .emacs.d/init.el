@@ -46,8 +46,10 @@
   :custom
   (blink-matching-paren t)
   :hook ((after-init . column-number-mode)
-         (after-init . delete-selection-mode)
          (prog-mode . my--delete-trailing-whitespace)))
+
+(use-package delsel
+  :hook (after-init . delete-selection-mode))
 
 (use-package minibuffer
   :custom
