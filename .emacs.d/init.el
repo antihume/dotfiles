@@ -230,3 +230,11 @@
 (use-package magit
   :defer t
   :commands (magit-status magit-dispatch))
+
+(use-package vertico
+  :ensure t
+  :custom
+  (vertico-count 16)
+  (vertico-cycle t)
+  :init
+  (vertico-mode))
