@@ -236,3 +236,11 @@
   (vertico-cycle t)
   :init
   (vertico-mode))
+
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion))))
+  (completion-pcm-leading-wildcard t)
+  (completion-styles '(orderless basic)))
