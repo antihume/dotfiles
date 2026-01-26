@@ -126,6 +126,10 @@
   :bind (:map dired-mode-map
               ("<backspace>" . dired-up-directory)))
 
+(use-package dired-x
+  :after dired
+  :hook (dired-mode . dired-omit-mode))
+
 (use-package org
   :custom
   (org-directory "~/Documents/org")
