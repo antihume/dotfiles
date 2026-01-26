@@ -240,7 +240,7 @@
   (meow-global-mode 1))
 
 (use-package magit
-  :defer t
+  :ensure t
   :commands (magit-status magit-dispatch))
 
 (use-package vertico
