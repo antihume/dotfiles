@@ -167,6 +167,7 @@
      '("0" . meow-digit-argument)
      '("/" . meow-keypad-describe-key)
      '("?" . meow-cheatsheet)
+     '("B" . ibuffer)
      '("F" . consult-find)
      '("G" . consult-grep)
      '("L" . consult-line-multi)
@@ -176,7 +177,7 @@
      '("f" . find-file)
      '("i" . consult-imenu)
      '("l" . consult-line)
-     '("r" . consult-recent-file))
+     '("y" . consult-yank-pop))
     (meow-normal-define-key
      '("0" . meow-expand-0)
      '("9" . meow-expand-9)
