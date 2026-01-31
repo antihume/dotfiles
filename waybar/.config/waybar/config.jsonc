@@ -1,12 +1,8 @@
 {
     "layer": "top",
     "position": "top",
-    "height": 36,
+    "height": 40,
     "spacing": 0,
-    "margin-top": 0,
-    "margin-bottom": 0,
-    "margin-left": 0,
-    "margin-right": 0,
 
     "modules-left": [
         "niri/workspaces",
@@ -29,7 +25,7 @@
     "niri/window": {
         "format": "{}",
         "icon": true,
-        "icon-size": 16,
+        "icon-size": 12,
         "max-length": 40,
         "tooltip": false
     },
@@ -45,6 +41,12 @@
         "tooltip": false
     },
 
+    "tray": {
+        "icon-size": 16,
+        "spacing": 8,
+        "show-passive-items": true
+    },
+
     "pulseaudio": {
         "format": "{icon} {volume}%",
         "format-muted": "󰝟 {volume}%",
@@ -56,14 +58,8 @@
         "tooltip-format": "{desc}\n{volume}%",
         "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
         "on-click-right": "pavucontrol",
-        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+",
-        "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-"
-    },
-
-    "tray": {
-        "icon-size": 16,
-        "spacing": 8,
-        "show-passive-items": true
+        "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+",
+        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-"
     },
 
     "battery": {

@@ -1,7 +1,7 @@
 * {
-    font-family: "CommitMono Nerd Font", monospace;
+    font-family: "Monaspace Krypton NF", monospace;
     font-size: 12px;
-    font-weight: 400;
+    font-weight: 500;
     min-height: 0;
     margin: 0;
     padding: 0;
@@ -10,14 +10,14 @@
 
 window#waybar {
     background-color: #000000;
+    border-top: 0px solid #1e1e1e;
     color: #ffffff;
-    border-bottom: 1px solid #1e1e1e;
 }
 
 tooltip {
     background-color: #1e1e1e;
     border: 1px solid #303030;
-    border-radius: 6px;
+    border-radius: 8px;
 }
 
 tooltip label {
@@ -26,66 +26,102 @@ tooltip label {
 }
 
 #workspaces {
-    margin-left: 8px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    margin: 8px;
+    padding: 0;
 }
 
 #workspaces button {
-    background-color: transparent;
-    border: 1px solid #303030;
-    border-radius: 4px;
+    background-color: #252525;
+    border: none;
+    border-radius: 0;
     color: #535353;
-    margin: 6px 3px;
-    min-width: 0;
-    padding: 2px 6px;
+    margin: 0;
+    padding: 0 10px;
     transition: all 150ms ease-out;
 }
 
+#workspaces button:first-child {
+    border-radius: 8px 0 0 8px;
+}
+
+#workspaces button:last-child {
+    border-radius: 0 8px 8px 0;
+}
+
+#workspaces button:only-child,
+#workspaces button:first-child:last-child {
+    border-radius: 8px;
+}
+
 #workspaces button.active {
-    border-color: #989898;
+    background-color: #303030;
     color: #ffffff;
-    padding: 2px 12px;
 }
 
 #workspaces button:hover {
-    border-color: #989898;
-    color: #ffffff;
+    background-color: #2a2a2a;
+    color: #989898;
 }
 
 #workspaces button.urgent {
-    border-color: #ff9580;
+    background-color: rgba(255, 149, 128, 0.15);
     color: #ff9580;
 }
 
 #window {
+    background-color: #1e1e1e;
+    border-radius: 8px;
     color: #989898;
-    margin-left: 12px;
-    padding: 0 8px;
+    margin: 8px;
+    padding: 0 10px;
+}
+
+window#waybar.empty #window {
+    background: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
 }
 
 #language,
-#pulseaudio,
 #custom-uptime,
+#pulseaudio,
 #battery,
 #clock {
     color: #989898;
-    padding: 0 12px;
+    padding: 0 10px;
     transition: color 100ms ease-out;
 }
 
 #language:hover,
-#pulseaudio:hover,
 #custom-uptime:hover,
+#pulseaudio:hover,
 #battery:hover,
 #clock:hover {
     color: #ffffff;
+}
+
+#clock {
+    margin-right: 8px;
 }
 
 #pulseaudio.muted {
     color: #535353;
 }
 
+#battery.warning {
+    color: #d2b580;
+}
+
+#battery.critical {
+    color: #ff9580;
+}
+
 #tray {
-    padding: 0 12px;
+    padding: 0 10px;
 }
 
 #tray > .passive {
@@ -95,7 +131,7 @@ tooltip label {
 #tray menu {
     background-color: #1e1e1e;
     border: 1px solid #303030;
-    border-radius: 6px;
+    border-radius: 8px;
     padding: 4px;
 }
 
@@ -107,16 +143,4 @@ tooltip label {
 #tray menu menuitem:hover {
     background-color: #303030;
     color: #ffffff;
-}
-
-#battery.warning {
-    color: #d2b580;
-}
-
-#battery.critical {
-    color: #ff9580;
-}
-
-#clock {
-    margin-right: 8px;
 }
