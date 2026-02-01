@@ -9,15 +9,18 @@
 (use-package emacs
   :config
   (require-theme 'modus-themes)
-  (setq use-short-answers t
-        create-lockfiles nil
-        ring-bell-function 'ignore
-        use-file-dialog nil)
   (setq modus-themes-italic-constructs t
         modus-themes-bold-constructs t
         modus-themes-common-palette-overrides
         modus-themes-preset-overrides-faint)
-  (load-theme 'modus-vivendi))
+  (load-theme 'modus-vivendi)
+  (setq use-short-answers t
+        create-lockfiles nil
+        ring-bell-function 'ignore
+        use-file-dialog nil)
+  (setq scroll-preserve-screen-position t
+	scroll-step 1
+        scroll-conservatively 101))
 
 (use-package faces
   :config
