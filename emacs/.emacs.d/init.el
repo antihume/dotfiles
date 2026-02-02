@@ -171,6 +171,12 @@
   (keymap-set evil-visual-state-map "SPC" my--leader-map)
   (keymap-set evil-motion-state-map "SPC" my--leader-map))
 
+(use-package evil-collection
+  :ensure t
+  :after evil
+  :config
+  (evil-collection-init))
+
 (use-package magit
   :ensure t
   :commands (magit-status magit-dispatch))
