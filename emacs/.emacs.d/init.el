@@ -254,7 +254,7 @@
 (use-package vertico
   :ensure t
   :custom
-  (vertico-count 16)
+  (vertico-count 24)
   (vertico-cycle t)
   :init
   (vertico-mode))
