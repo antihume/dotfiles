@@ -147,6 +147,30 @@
      (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
      (python "https://github.com/tree-sitter/tree-sitter-python"))))
 
+(use-package evil
+  :ensure t
+  :demand t
+  :init
+  (setq evil-undo-system 'undo-redo
+        evil-want-C-u-scroll t
+        evil-want-Y-yank-to-eol t
+        evil-want-integration t
+        evil-want-keybinding nil)
+  :config
+  (evil-mode 1)
+  (defvar-keymap my--leader-map
+    "B" #'ibuffer
+    "b" #'consult-buffer
+    "d" #'dired-jump
+    "f" #'find-file
+    "l" #'consult-line
+    "m" #'magit-status
+    "o" #'consult-outline
+    "p" #'consult-yank-from-kill-ring)
+  (keymap-set evil-normal-state-map "SPC" my--leader-map)
+  (keymap-set evil-visual-state-map "SPC" my--leader-map)
+  (keymap-set evil-motion-state-map "SPC" my--leader-map))
+
 (use-package magit
   :ensure t
   :commands (magit-status magit-dispatch))
