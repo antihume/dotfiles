@@ -21,11 +21,11 @@ bindkey '^[[B' history-search-forward
 # --- Git Integration ---------------------------------------------------------
 autoload -Uz vcs_info
 setopt PROMPT_SUBST
-zstyle ':vcs_info:git:*' formats ' %F{cyan}(%b)%f'
+zstyle ':vcs_info:git:*' formats ' %F{white}(%b)%f'
 precmd() { vcs_info }
 
 # --- Prompt ------------------------------------------------------------------
-PROMPT='%F{magenta}%~%f${vcs_info_msg_0_} %# '
+PROMPT='%F{white}[%f%F{magenta}%n@%m%f %F{cyan}%~%f%F{white}]%f${vcs_info_msg_0_} %F{white}$%f '
 
 # --- Environment -------------------------------------------------------------
 export EDITOR="vim"
