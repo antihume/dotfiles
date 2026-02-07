@@ -12,8 +12,8 @@
   (setq modus-themes-italic-constructs t
         modus-themes-bold-constructs t
         modus-themes-common-palette-overrides
-        modus-themes-preset-overrides-faint)
-  (load-theme 'modus-vivendi)
+        modus-themes-preset-overrides-intense)
+  (load-theme 'modus-vivendi-tinted)
   (setq use-short-answers t
         create-lockfiles nil
         ring-bell-function 'ignore
