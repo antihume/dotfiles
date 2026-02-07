@@ -20,7 +20,6 @@ size = 11.0
 
 [cursor]
 style = { shape = "Block", blinking = "Off" }
-vi_mode_style = { shape = "Beam", blinking = "Off" }
 
 [selection]
 save_to_clipboard = true
