@@ -16,7 +16,7 @@ dynamic_padding = true
 normal = { family = "CommitMono", style = "Regular" }
 bold = { family = "CommitMono", style = "Bold" }
 italic = { family = "CommitMono", style = "Italic" }
-size = 12.0
+size = 11.0
 
 [cursor]
 style = { shape = "Block", blinking = "Off" }
