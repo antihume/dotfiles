@@ -1,6 +1,6 @@
 [general]
 import = [
-  "~/.config/alacritty/themes/modus_vivendi.toml"
+  "~/.config/alacritty/themes/modus_vivendi_tinted.toml"
 ]
 
 [env]
