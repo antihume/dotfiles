@@ -220,7 +220,7 @@ Only activates mappings for languages with installed grammars."
   (which-key-idle-delay 0.5)
 
   ;; Windmove
-  (windmove-default-keybindings)
+  (windmove-default-keybindings 'meta)
 
   ;; Mode line
   (mode-line-compact 'long)
