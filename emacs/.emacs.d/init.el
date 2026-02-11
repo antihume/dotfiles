@@ -210,7 +210,7 @@ Only activates mappings for languages with installed grammars."
   (next-error-message-highlight t)
 
   ;; Which-key
-  (which-key-idle-delay 0.5)
+  (which-key-idle-delay 1)
 
   ;; Windmove
   (windmove-default-keybindings 'meta)
@@ -275,11 +275,11 @@ Only activates mappings for languages with installed grammars."
    (prog-mode . visual-wrap-prefix-mode))
 
   :bind
-  (("<f5>" . my/theme-toggle)
-   ("C-c f s" . my/open-file-with-sudo)
-   ("C-c f y" . my/save-path-to-kill-ring)
-   ("C-c d" . duplicate-dwim)
-   ([remap list-buffers] . ibuffer)))
+  (([remap list-buffers] . ibuffer)
+   ("<f5>" . my/theme-toggle)
+   ("C-c m s" . my/open-file-with-sudo)
+   ("C-c m y" . my/save-path-to-kill-ring)
+   ("C-c d" . duplicate-dwim)))
 
 ;;; Files and backups
 
@@ -327,9 +327,6 @@ Only activates mappings for languages with installed grammars."
   (dired-recursive-deletes 'always)
   (dired-mouse-drag-files t)
   (dired-free-space nil)
-  :config
-  (require 'dired-x)
-  :hook (dired-mode . dired-omit-mode)
   :bind (:map dired-mode-map
               ("<backspace>" . dired-up-directory)))
 
@@ -355,21 +352,58 @@ Only activates mappings for languages with installed grammars."
   :ensure t
   :custom
   (vertico-count 24)
+  (vertico-resize nil)
   (vertico-cycle t)
-  :config
+  (vertico-preselect 'first)
+  :init
   (vertico-mode 1))
+
+(use-package vertico-directory
+  :after vertico
+  :ensure nil
+  :bind (:map vertico-map
+              ("RET"   . vertico-directory-enter)
+              ("DEL"   . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word))
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
+(use-package vertico-repeat
+  :after vertico
+  :ensure nil
+  :hook (minibuffer-setup . vertico-repeat-save)
+  :bind (("C-c r" . vertico-repeat)))
 
 (use-package orderless
   :ensure t
   :custom
-  (completion-category-defaults nil)
+  (completion-styles '(orderless basic))
   (completion-category-overrides '((file (styles partial-completion))))
-  (completion-styles '(orderless basic)))
+  (completion-category-defaults nil)
+  (completion-pcm-leading-wildcard t))
 
 (use-package marginalia
   :ensure t
-  :config
+  :init
   (marginalia-mode 1))
+
+(use-package corfu
+  :ensure t
+  :custom
+  (corfu-auto t)
+  (corfu-auto-delay 0.75)
+  (corfu-cycle t)
+  (corfu-popupinfo-delay '(0.25 . 0.25))
+  (corfu-popupinfo-max-height 12)
+  :init
+  (global-corfu-mode)
+  (corfu-popupinfo-mode))
+
+(use-package cape
+  :ensure t
+  :init
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions
+            (cape-capf-prefix-length #'cape-dabbrev 2)))
 
 ;;; Search and navigation
 
@@ -377,6 +411,15 @@ Only activates mappings for languages with installed grammars."
   :ensure t
   :custom
   (consult-narrow-key "<")
+  (consult-grep-args
+   '("grep" (consult--grep-exclude-args)
+     "--null --line-buffered --color=never --ignore-case \
+--with-filename --line-number -I -r"))
+  (consult-find-args
+   "find . -type f \
+-not ( -path '*/.git/*' -prune ) \
+-not ( -path '*/node_modules/*' -prune ) \
+-not ( -path '*/.cache/*' -prune )")
   :init
   (setq register-preview-delay 0.5
         xref-show-definitions-function #'consult-xref
@@ -388,38 +431,39 @@ Only activates mappings for languages with installed grammars."
    ([remap yank-pop] . consult-yank-pop)
    ([remap goto-line] . consult-goto-line)
    ([remap imenu] . consult-imenu)
-   ("M-s l" . consult-line)
-   ("M-s r" . consult-ripgrep)
-   ("C-c m" . consult-mode-command)
-   ("C-c h" . consult-history)))
+   ("M-s f" . consult-find)
+   ("M-s g" . consult-grep)
+   ("M-s l" . consult-line)))
 
 ;;; Actions
 
 (use-package embark
   :ensure t
+  :bind
+  (("C-." . embark-act)
+   ("C-;" . embark-dwim)
+   ("C-h B" . embark-bindings))
   :init
   (setq prefix-help-command #'embark-prefix-help-command)
   :config
   (add-to-list 'display-buffer-alist
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                  nil
-                 (window-parameters (mode-line-format . none))))
-  :bind
-  (("C-." . embark-act)
-   ("C-;" . embark-dwim)
-   ("C-h B" . embark-bindings)))
+                 (window-parameters (mode-line-format . none)))))
 
 (use-package embark-consult
   :ensure t
+  :after (embark consult)
   :hook (embark-collect-mode . consult-preview-at-point-mode))
 
 ;;; Version control
 
 (use-package magit
   :ensure t
-  :bind
-  (("C-c g" . magit-status)
-   ("C-c G" . magit-dispatch)))
+  :commands (magit-status magit-blame-addition)
+  :bind (("C-c g" . magit-status))
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1))
 
 (provide 'init)
 
