@@ -6,12 +6,12 @@
   "Personal Emacs configuration preferences."
   :group 'convenience)
 
-(defcustom my/theme-light 'modus-operandi-tinted
+(defcustom my/theme-light 'modus-operandi
   "Default light theme."
   :type 'symbol
   :group 'my)
 
-(defcustom my/theme-dark 'modus-vivendi-tinted
+(defcustom my/theme-dark 'modus-vivendi
   "Default dark theme."
   :type 'symbol
   :group 'my)
@@ -237,7 +237,7 @@ Only activates mappings for languages with installed grammars."
   (setq modus-themes-italic-constructs t
         modus-themes-bold-constructs t
         modus-themes-common-palette-overrides
-        modus-themes-preset-overrides-faint)
+        modus-themes-preset-overrides-warmer)
 
   ;; Theme
   (my/theme-load my/theme-current)
