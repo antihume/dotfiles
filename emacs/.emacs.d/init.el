@@ -61,6 +61,16 @@
         (message "Copied: %s" filename))
     (user-error "Buffer is not visiting a file")))
 
+(defun my/scratch-buffer-current-mode ()
+  "Switch to a scratch buffer in the current major mode."
+  (interactive)
+  (let* ((mode major-mode)
+         (name (format "*scratch-%s*" mode))
+         (buf (get-buffer-create name)))
+    (switch-to-buffer buf)
+    (unless (eq major-mode mode)
+      (funcall mode))))
+
 ;;; Tree-sitter
 
 (defvar my--treesit-recipes
@@ -275,9 +285,10 @@ Only activates mappings for languages with installed grammars."
   :bind
   (([remap list-buffers] . ibuffer)
    ("<f5>" . my/theme-toggle)
-   ("C-c m s" . my/find-file-with-sudo)
-   ("C-c m y" . my/save-path-to-kill-ring)
-   ("C-c d" . duplicate-dwim)))
+   ("C-c d" . duplicate-dwim))
+   ("C-c m f" . my/find-file-with-sudo)
+   ("C-c m s" . my/scratch-buffer-current-mode)
+   ("C-c m y" . my/save-path-to-kill-ring))
 
 ;;; Files and backups
 
