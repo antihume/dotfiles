@@ -45,14 +45,12 @@
        my/theme-light
      my/theme-dark)))
 
-(defun my/open-file-with-sudo ()
-  "Reopen the current file with sudo privileges."
+(defun my/find-file-with-sudo ()
+  "Find file as root via TRAMP sudo."
   (interactive)
-  (if-let* ((file-name (buffer-file-name)))
-      (if (file-remote-p file-name)
-          (user-error "File is already remote")
-        (find-alternate-file (concat "/sudo::" file-name)))
-    (user-error "Buffer is not visiting a file")))
+  (let ((default-directory
+         (concat "/sudo::" (or (file-name-directory (or (buffer-file-name) "")) "/"))))
+    (call-interactively #'find-file)))
 
 (defun my/save-path-to-kill-ring ()
   "Save current file path to kill ring."
@@ -277,7 +275,7 @@ Only activates mappings for languages with installed grammars."
   :bind
   (([remap list-buffers] . ibuffer)
    ("<f5>" . my/theme-toggle)
-   ("C-c m s" . my/open-file-with-sudo)
+   ("C-c m s" . my/find-file-with-sudo)
    ("C-c m y" . my/save-path-to-kill-ring)
    ("C-c d" . duplicate-dwim)))
 
