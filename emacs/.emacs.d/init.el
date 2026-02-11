@@ -189,13 +189,6 @@ Only activates mappings for languages with installed grammars."
   (enable-recursive-minibuffers t)
   (minibuffer-visible-completions t)
 
-  ;; Completion
-  (completion-auto-help 'visible)
-  (completion-auto-select 'second-tab)
-  (completions-max-height 20)
-  (completions-sort 'historical)
-  (read-extended-command-predicate #'command-completion-default-include-p)
-
   ;; Parens
   (blink-matching-paren t)
   (show-paren-context-when-offscreen 'overlay)
@@ -274,8 +267,7 @@ Only activates mappings for languages with installed grammars."
   (which-key-mode 1)
 
   :hook
-  ((prog-mode . completion-preview-mode)
-   (prog-mode . display-line-numbers-mode)
+  ((prog-mode . display-line-numbers-mode)
    (prog-mode . electric-pair-local-mode)
    (prog-mode . hl-line-mode)
    (prog-mode . my--enable-delete-trailing-whitespace)
