@@ -6,19 +6,6 @@
   "Personal Emacs configuration preferences."
   :group 'convenience)
 
-(defcustom my/theme-light 'modus-operandi
-  "Default light theme."
-  :type 'symbol
-  :group 'my)
-
-(defcustom my/theme-dark 'modus-vivendi
-  "Default dark theme."
-  :type 'symbol
-  :group 'my)
-
-(defvar my/theme-current my/theme-dark
-  "Current theme variant, either `my/theme-light' or `my/theme-dark'.")
-
 (defcustom my/font-family "CommitMono"
   "Default font family."
   :type 'string
@@ -30,20 +17,6 @@
   :group 'my)
 
 ;;; Helper functions
-
-(defun my/theme-load (theme)
-  "Disable enabled themes and load THEME."
-  (mapc #'disable-theme custom-enabled-themes)
-  (load-theme theme t)
-  (setq my/theme-current theme))
-
-(defun my/theme-toggle ()
-  "Toggle between `my/theme-dark' and `my/theme-light'."
-  (interactive)
-  (my/theme-load
-   (if (eq my/theme-current my/theme-dark)
-       my/theme-light
-     my/theme-dark)))
 
 (defun my/find-file-with-sudo ()
   "Find file as root via TRAMP sudo."
@@ -240,16 +213,6 @@ Only activates mappings for languages with installed grammars."
 
   :config
 
-  ;; Modus Themes
-  (require-theme 'modus-themes)
-  (setq modus-themes-italic-constructs t
-        modus-themes-bold-constructs t
-        modus-themes-common-palette-overrides
-        modus-themes-preset-overrides-warmer)
-
-  ;; Theme
-  (my/theme-load my/theme-current)
-
   ;; Font
   (when (member my/font-family (font-family-list))
     (set-face-attribute 'default nil
@@ -284,7 +247,6 @@ Only activates mappings for languages with installed grammars."
 
   :bind
   (([remap list-buffers] . ibuffer)
-   ("<f5>" . my/theme-toggle)
    ("C-c d" . duplicate-dwim)
    ("C-c m f" . my/find-file-with-sudo)
    ("C-c m s" . my/scratch-buffer-current-mode)
@@ -347,6 +309,36 @@ Only activates mappings for languages with installed grammars."
   :bind
   (("C-c w u" . winner-undo)
    ("C-c w r" . winner-redo)))
+
+;;; Ef themes
+
+(use-package ef-themes
+  :ensure t
+  :preface
+  (defvar my/ef-themes-light 'ef-summer
+    "Default light theme.")
+  (defvar my/ef-themes-dark 'ef-winter
+    "Default dark theme.")
+  (defun my/ef-themes--pair-member-p (theme)
+    (memq theme (list my/ef-themes-light my/ef-themes-dark)))
+  (defun my/ef-themes-toggle ()
+    "Toggle between `my/ef-themes-dark' and `my/ef-themes-light'."
+    (interactive)
+    (let* ((current (car (seq-filter #'my/ef-themes--pair-member-p custom-enabled-themes)))
+           (next (if (eq current my/ef-themes-dark) my/ef-themes-light my/ef-themes-dark)))
+      (mapc #'disable-theme custom-enabled-themes)
+      (modus-themes-load-theme next)))
+  :init
+  (ef-themes-take-over-modus-themes-mode 1)
+  :bind
+  (("<f5>"   . my/ef-themes-toggle)
+   ("C-<f5>" . modus-themes-select)
+   ("M-<f5>" . modus-themes-load-random))
+  :config
+  (setq modus-themes-mixed-fonts t
+        modus-themes-italic-constructs t
+        modus-themes-bold-constructs t)
+  (modus-themes-load-theme my/ef-themes-dark))
 
 ;;; Org
 
