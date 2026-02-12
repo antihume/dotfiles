@@ -285,10 +285,10 @@ Only activates mappings for languages with installed grammars."
   :bind
   (([remap list-buffers] . ibuffer)
    ("<f5>" . my/theme-toggle)
-   ("C-c d" . duplicate-dwim))
+   ("C-c d" . duplicate-dwim)
    ("C-c m f" . my/find-file-with-sudo)
    ("C-c m s" . my/scratch-buffer-current-mode)
-   ("C-c m y" . my/save-path-to-kill-ring))
+   ("C-c m y" . my/save-path-to-kill-ring)))
 
 ;;; Files and backups
 
