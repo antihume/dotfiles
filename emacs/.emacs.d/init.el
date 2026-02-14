@@ -148,6 +148,7 @@ Only activates mappings for languages with installed grammars."
   ;; General behavior
   (create-lockfiles nil)
   (custom-file null-device)
+  (disabled-command-function nil)
   (ring-bell-function 'ignore)
   (use-file-dialog nil)
   (use-short-answers t)
