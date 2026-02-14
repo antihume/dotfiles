@@ -1,127 +1,5 @@
 ;; -*- lexical-binding: t; -*-
 
-;;; Personal preferences
-
-(defgroup my nil
-  "Personal Emacs configuration preferences."
-  :group 'convenience)
-
-(defcustom my/font-family "CommitMono"
-  "Default font family."
-  :type 'string
-  :group 'my)
-
-(defcustom my/font-height 110
-  "Default font height in 1/10pt units."
-  :type 'integer
-  :group 'my)
-
-;;; Helper functions
-
-(defun my/find-file-with-sudo ()
-  "Find file as root via TRAMP sudo."
-  (interactive)
-  (let ((default-directory
-         (concat "/sudo::" (or (file-name-directory (or (buffer-file-name) "")) "/"))))
-    (call-interactively #'find-file)))
-
-(defun my/save-path-to-kill-ring ()
-  "Save current file path to kill ring."
-  (interactive)
-  (if-let* ((filename (buffer-file-name)))
-      (progn
-        (kill-new filename)
-        (message "Copied: %s" filename))
-    (user-error "Buffer is not visiting a file")))
-
-(defun my/scratch-buffer-current-mode ()
-  "Switch to a scratch buffer in the current major mode."
-  (interactive)
-  (let* ((mode major-mode)
-         (name (format "*scratch-%s*" mode))
-         (buf (get-buffer-create name)))
-    (switch-to-buffer buf)
-    (unless (eq major-mode mode)
-      (funcall mode))))
-
-;;; Tree-sitter
-
-(defvar my--treesit-recipes
-  '((bash
-     :source ("https://github.com/tree-sitter/tree-sitter-bash" "v0.21.0")
-     :remap (sh-mode . bash-ts-mode))
-    (c
-     :source ("https://github.com/tree-sitter/tree-sitter-c" "v0.21.4")
-     :remap (c-mode . c-ts-mode))
-    (cpp
-     :source ("https://github.com/tree-sitter/tree-sitter-cpp" "v0.22.3")
-     :remap (c++-mode . c++-ts-mode))
-    (css
-     :source ("https://github.com/tree-sitter/tree-sitter-css" "v0.21.1")
-     :remap (css-mode . css-ts-mode))
-    (go
-     :source ("https://github.com/tree-sitter/tree-sitter-go" "v0.21.2")
-     :auto-mode ("\\.go\\'" . go-ts-mode))
-    (html
-     :source ("https://github.com/tree-sitter/tree-sitter-html" "v0.20.3")
-     :remap (mhtml-mode . html-ts-mode))
-    (javascript
-     :source ("https://github.com/tree-sitter/tree-sitter-javascript" "v0.21.4")
-     :remap (js-mode . js-ts-mode))
-    (json
-     :source ("https://github.com/tree-sitter/tree-sitter-json" "v0.21.0")
-     :remap (js-json-mode . json-ts-mode))
-    (python
-     :source ("https://github.com/tree-sitter/tree-sitter-python" "v0.21.0")
-     :remap (python-mode . python-ts-mode))
-    (rust
-     :source ("https://github.com/tree-sitter/tree-sitter-rust" "v0.21.2")
-     :auto-mode ("\\.rs\\'" . rust-ts-mode))
-    (toml
-     :source ("https://github.com/tree-sitter/tree-sitter-toml" "v0.5.1")
-     :auto-mode ("\\.toml\\'" . toml-ts-mode))
-    (tsx
-     :source ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.21.2" "tsx/src")
-     :auto-mode ("\\.tsx\\'" . tsx-ts-mode))
-    (typescript
-     :source ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.21.2" "typescript/src")
-     :auto-mode ("\\.ts\\'" . typescript-ts-mode)))
-  "Tree-sitter language recipes for ABI version 14 (Emacs 31).
-Each entry is (LANG . PLIST) where PLIST keys are:
-  :source     (URL &optional REVISION SOURCE-DIR)
-  :remap      (OLD-MODE . TS-MODE) for `major-mode-remap-alist'
-  :auto-mode  (PATTERN . TS-MODE) for `auto-mode-alist'")
-
-(defun my--treesit-build-source-alist ()
-  "Build `treesit-language-source-alist' from `my--treesit-recipes'."
-  (mapcar (lambda (recipe)
-            (cons (car recipe) (plist-get (cdr recipe) :source)))
-          my--treesit-recipes))
-
-(defun my--treesit-configure-modes ()
-  "Configure mode associations from `my--treesit-recipes'.
-Only activates mappings for languages with installed grammars."
-  (dolist (recipe my--treesit-recipes)
-    (let ((lang (car recipe))
-          (props (cdr recipe)))
-      (when (treesit-language-available-p lang)
-        (when-let* ((remap (plist-get props :remap)))
-          (add-to-list 'major-mode-remap-alist remap))
-        (when-let* ((entry (plist-get props :auto-mode)))
-          (add-to-list 'auto-mode-alist entry)))))
-  (when (and (treesit-language-available-p 'c)
-             (treesit-language-available-p 'cpp))
-    (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))))
-
-(defun my/treesit-install-all-grammars ()
-  "Install all tree-sitter grammars from `my--treesit-recipes'."
-  (interactive)
-  (dolist (recipe my--treesit-recipes)
-    (let ((lang (car recipe)))
-      (unless (treesit-language-available-p lang)
-        (treesit-install-language-grammar lang))))
-  (my--treesit-configure-modes))
-
 ;;; Package management
 
 (use-package package
@@ -137,11 +15,43 @@ Only activates mappings for languages with installed grammars."
 
 (use-package emacs
   :preface
+  (defvar my/font-family "CommitMono"
+    "Default font family.")
+
+  (defvar my/font-height 110
+    "Default font height in 1/10pt units.")
+
   (defun my--enable-show-trailing-whitespace ()
     (setq-local show-trailing-whitespace t))
 
   (defun my--enable-delete-trailing-whitespace ()
     (add-hook 'before-save-hook #'delete-trailing-whitespace nil t))
+
+  (defun my/find-file-with-sudo ()
+    "Find file as root via TRAMP sudo."
+    (interactive)
+    (let ((default-directory
+           (concat "/sudo::" (or (file-name-directory (or (buffer-file-name) "")) "/"))))
+      (call-interactively #'find-file)))
+
+  (defun my/save-path-to-kill-ring ()
+    "Save current file path to kill ring."
+    (interactive)
+    (if-let* ((filename (buffer-file-name)))
+	(progn
+          (kill-new filename)
+          (message "Copied: %s" filename))
+      (user-error "Buffer is not visiting a file")))
+
+  (defun my/scratch-buffer-current-mode ()
+    "Switch to a scratch buffer in the current major mode."
+    (interactive)
+    (let* ((mode major-mode)
+           (name (format "*scratch-%s*" mode))
+           (buf (get-buffer-create name)))
+      (switch-to-buffer buf)
+      (unless (eq major-mode mode)
+	(funcall mode))))
 
   :custom
 
@@ -192,10 +102,10 @@ Only activates mappings for languages with installed grammars."
   (next-error-message-highlight t)
 
   ;; Which-key
-  (which-key-idle-delay 1)
+  (which-key-idle-delay 0.5)
 
   ;; Windmove
-  (windmove-default-keybindings 'meta)
+  (windmove-default-keybindings 'super)
 
   ;; Mode line
   (mode-line-compact 'long)
@@ -237,6 +147,7 @@ Only activates mappings for languages with installed grammars."
   (savehist-mode 1)
   (show-paren-mode 1)
   (which-key-mode 1)
+  (winner-mode 1)
 
   :hook
   ((prog-mode . display-line-numbers-mode)
@@ -251,47 +162,129 @@ Only activates mappings for languages with installed grammars."
    ("C-c d" . duplicate-dwim)
    ("C-c m f" . my/find-file-with-sudo)
    ("C-c m s" . my/scratch-buffer-current-mode)
-   ("C-c m y" . my/save-path-to-kill-ring)))
+   ("C-c m w" . my/save-path-to-kill-ring)))
 
 ;;; Files and backups
 
-(defvar my--backup-dir
-  (expand-file-name "backup/" user-emacs-directory))
-
-(defvar my--auto-save-dir
-  (expand-file-name "auto-save/" user-emacs-directory))
-
-(make-directory my--backup-dir t)
-(make-directory my--auto-save-dir t)
-
 (use-package files
+  :preface
+  (defvar my--backup-dir
+    (expand-file-name "backup/" user-emacs-directory))
+  (defvar my--auto-save-dir
+    (expand-file-name "auto-save/" user-emacs-directory))
+  (defun my--force-backup-of-buffer ()
+    (setq buffer-backed-up nil))
+  :init
+  (make-directory my--backup-dir t)
+  (make-directory my--auto-save-dir t)
   :custom
-  (delete-by-moving-to-trash t)
   (backup-by-copying t)
-  (delete-old-versions t)
-  (kept-old-versions 0)
-  (version-control t)
-  (require-final-newline t)
   (backup-directory-alist `(("." . ,my--backup-dir)))
-  (auto-save-file-name-transforms `((".*" ,my--auto-save-dir t))))
+  (delete-by-moving-to-trash t)
+  (delete-old-versions t)
+  (kept-new-versions 10)
+  (kept-old-versions 0)
+  (require-final-newline t)
+  (version-control t)
+  (auto-save-file-name-transforms `((".*" ,my--auto-save-dir t)))
+  :hook
+  (before-save 'my--force-backup-of-buffer))
 
 ;;; Tree-sitter modes
 
 (use-package treesit
+  :preface
+  (defvar my--treesit-recipes
+    '((bash
+       :source ("https://github.com/tree-sitter/tree-sitter-bash" "v0.21.0")
+       :remap (sh-mode . bash-ts-mode))
+      (c
+       :source ("https://github.com/tree-sitter/tree-sitter-c" "v0.21.4")
+       :remap (c-mode . c-ts-mode))
+      (cpp
+       :source ("https://github.com/tree-sitter/tree-sitter-cpp" "v0.22.3")
+       :remap (c++-mode . c++-ts-mode))
+      (css
+       :source ("https://github.com/tree-sitter/tree-sitter-css" "v0.21.1")
+       :remap (css-mode . css-ts-mode))
+      (go
+       :source ("https://github.com/tree-sitter/tree-sitter-go" "v0.21.2")
+       :auto-mode ("\\.go\\'" . go-ts-mode))
+      (html
+       :source ("https://github.com/tree-sitter/tree-sitter-html" "v0.20.3")
+       :remap (mhtml-mode . html-ts-mode))
+      (javascript
+       :source ("https://github.com/tree-sitter/tree-sitter-javascript" "v0.21.4")
+       :remap (js-mode . js-ts-mode))
+      (json
+       :source ("https://github.com/tree-sitter/tree-sitter-json" "v0.21.0")
+       :remap (js-json-mode . json-ts-mode))
+      (python
+       :source ("https://github.com/tree-sitter/tree-sitter-python" "v0.21.0")
+       :remap (python-mode . python-ts-mode))
+      (rust
+       :source ("https://github.com/tree-sitter/tree-sitter-rust" "v0.21.2")
+       :auto-mode ("\\.rs\\'" . rust-ts-mode))
+      (toml
+       :source ("https://github.com/tree-sitter/tree-sitter-toml" "v0.5.1")
+       :auto-mode ("\\.toml\\'" . toml-ts-mode))
+      (tsx
+       :source ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.21.2" "tsx/src")
+       :auto-mode ("\\.tsx\\'" . tsx-ts-mode))
+      (typescript
+       :source ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.21.2" "typescript/src")
+       :auto-mode ("\\.ts\\'" . typescript-ts-mode)))
+    "Tree-sitter language recipes for ABI version 14 (Emacs 31).
+Each entry is (LANG . PLIST) where PLIST keys are:
+  :source     (URL &optional REVISION SOURCE-DIR)
+  :remap      (OLD-MODE . TS-MODE) for `major-mode-remap-alist'
+  :auto-mode  (PATTERN . TS-MODE) for `auto-mode-alist'")
+
+  (defun my--treesit-build-source-alist ()
+    "Build `treesit-language-source-alist' from `my--treesit-recipes'."
+    (mapcar (lambda (recipe)
+              (cons (car recipe) (plist-get (cdr recipe) :source)))
+            my--treesit-recipes))
+
+  (defun my--treesit-configure-modes ()
+    "Configure mode associations from `my--treesit-recipes'.
+Only activates mappings for languages with installed grammars."
+    (dolist (recipe my--treesit-recipes)
+      (let ((lang (car recipe))
+            (props (cdr recipe)))
+	(when (treesit-language-available-p lang)
+          (when-let* ((remap (plist-get props :remap)))
+            (add-to-list 'major-mode-remap-alist remap))
+          (when-let* ((entry (plist-get props :auto-mode)))
+            (add-to-list 'auto-mode-alist entry)))))
+    (when (and (treesit-language-available-p 'c)
+               (treesit-language-available-p 'cpp))
+      (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))))
+
+  (defun my/treesit-install-all-grammars ()
+    "Install all tree-sitter grammars from `my--treesit-recipes'."
+    (interactive)
+    (dolist (recipe my--treesit-recipes)
+      (let ((lang (car recipe)))
+	(unless (treesit-language-available-p lang)
+          (treesit-install-language-grammar lang))))
+    (my--treesit-configure-modes))
+
   :custom
   (treesit-font-lock-level 4)
+
   :config
   (setq treesit-language-source-alist (my--treesit-build-source-alist))
   (my--treesit-configure-modes))
 
 ;;; Dired
 
-(defvar my--dired-listing-switches
-  (if (eq system-type 'gnu/linux)
-      "-agho --group-directories-first"
-    "-agho"))
-
 (use-package dired
+  :preface
+  (defvar my--dired-listing-switches
+    (if (eq system-type 'gnu/linux)
+	"-Alh --group-directories-first"
+      "-Alh"))
   :custom
   (dired-dwim-target t)
   (dired-listing-switches my--dired-listing-switches)
@@ -300,16 +293,7 @@ Only activates mappings for languages with installed grammars."
   (dired-mouse-drag-files t)
   (dired-free-space nil)
   :bind (:map dired-mode-map
-              ("<backspace>" . dired-up-directory)))
-
-;;; Windows
-
-(use-package winner
-  :config
-  (winner-mode 1)
-  :bind
-  (("C-c w u" . winner-undo)
-   ("C-c w r" . winner-redo)))
+              ("DEL" . dired-up-directory)))
 
 ;;; Ef themes
 
@@ -392,7 +376,7 @@ Only activates mappings for languages with installed grammars."
   :ensure t
   :custom
   (corfu-auto t)
-  (corfu-auto-delay 0.75)
+  (corfu-auto-delay 0.5)
   (corfu-cycle t)
   (corfu-popupinfo-delay '(0.25 . 0.25))
   (corfu-popupinfo-max-height 12)
@@ -413,15 +397,6 @@ Only activates mappings for languages with installed grammars."
   :ensure t
   :custom
   (consult-narrow-key "<")
-  (consult-grep-args
-   '("grep" (consult--grep-exclude-args)
-     "--null --line-buffered --color=never --ignore-case \
---with-filename --line-number -I -r"))
-  (consult-find-args
-   "find . -type f \
--not ( -path '*/.git/*' -prune ) \
--not ( -path '*/node_modules/*' -prune ) \
--not ( -path '*/.cache/*' -prune )")
   :init
   (setq register-preview-delay 0.5
         xref-show-definitions-function #'consult-xref
@@ -433,9 +408,9 @@ Only activates mappings for languages with installed grammars."
    ([remap yank-pop] . consult-yank-pop)
    ([remap goto-line] . consult-goto-line)
    ([remap imenu] . consult-imenu)
-   ("M-s f" . consult-find)
-   ("M-s g" . consult-grep)
-   ("M-s l" . consult-line)))
+   ("C-c f" . consult-find)
+   ("C-c g" . consult-grep)
+   ("C-c l" . consult-line)))
 
 ;;; Actions
 
@@ -463,9 +438,11 @@ Only activates mappings for languages with installed grammars."
 (use-package magit
   :ensure t
   :commands (magit-status magit-blame-addition)
-  :bind (("C-c g" . magit-status))
   :custom
+  (magit-define-global-key-bindings 'default)
   (magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1))
+
+;;; ᗜˬᗜ
 
 (provide 'init)
 
