@@ -34,7 +34,7 @@
            (concat "/sudo::" (or (file-name-directory (or (buffer-file-name) "")) "/"))))
       (call-interactively #'find-file)))
 
-  (defun my/save-path-to-kill-ring ()
+  (defun my/path-kill-ring-save ()
     "Save current file path to kill ring."
     (interactive)
     (if-let* ((filename (buffer-file-name)))
@@ -162,7 +162,7 @@
    ("C-c d" . duplicate-dwim)
    ("C-c m f" . my/find-file-with-sudo)
    ("C-c m s" . my/scratch-buffer-current-mode)
-   ("C-c m w" . my/save-path-to-kill-ring)))
+   ("C-c m w" . my/path-kill-ring-save)))
 
 ;;; Files and backups
 
