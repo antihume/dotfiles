@@ -1,6 +1,6 @@
 [general]
 import = [
-  "~/.config/alacritty/themes/modus_vivendi_tinted.toml"
+  "~/.config/alacritty/themes/modus_vivendi.toml"
 ]
 
 [env]
@@ -12,10 +12,10 @@ padding = { x = 8, y = 8 }
 dynamic_padding = true
 
 [font]
-normal = { family = "CommitMono", style = "Regular" }
-bold = { family = "CommitMono", style = "Bold" }
-italic = { family = "CommitMono", style = "Italic" }
-size = 11.0
+normal = { family = "Iosevka SS08", style = "Regular" }
+bold = { family = "Iosevka SS08", style = "Bold" }
+italic = { family = "Iosevka SS08", style = "Italic" }
+size = 12.0
 
 [cursor]
 style = { shape = "Block", blinking = "On" }
