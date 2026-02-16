@@ -479,6 +479,30 @@ Only activates mappings for languages with installed grammars."
   :config
   (setq consult-narrow-key "<"))
 
+(use-package avy
+  :ensure t
+  :bind (("C-'" . avy-goto-char-timer)
+         ("C-;" . avy-goto-char-2)
+         ("M-g g" . avy-goto-line)
+         ("M-g w" . avy-goto-word-1)
+         ("M-g r" . avy-resume))
+  :custom
+  (avy-all-windows t)
+  (avy-keys '(?q ?w ?e ?d ?m ?k ?l ?o))
+  (avy-style 'de-bruijn)
+  (avy-timeout-seconds 0.3)
+  :config
+  (define-key isearch-mode-map (kbd "C-'") #'avy-isearch)
+  (with-eval-after-load 'embark
+    (defun my--avy-action-embark (pt)
+      (unwind-protect
+          (save-excursion
+            (goto-char pt)
+            (embark-act))
+        (select-window (cdr (ring-ref avy-ring 0))))
+      t)
+    (setf (alist-get ?. avy-dispatch-alist) #'my--avy-action-embark)))
+
 ;;; Actions
 
 (use-package embark
