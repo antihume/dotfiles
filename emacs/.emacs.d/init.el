@@ -295,6 +295,14 @@ Only activates mappings for languages with installed grammars."
   :bind (:map dired-mode-map
               ("DEL" . dired-up-directory)))
 
+;;; Diagnostics
+
+(use-package flymake
+  :custom
+  (flymake-no-changes-timeout 0.5)
+  (flymake-suppress-zero-counters t)
+  (flymake-wrap-around t))
+
 ;;; Ef themes
 
 (use-package ef-themes
