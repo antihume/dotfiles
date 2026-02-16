@@ -303,6 +303,14 @@ Only activates mappings for languages with installed grammars."
   (flymake-suppress-zero-counters t)
   (flymake-wrap-around t))
 
+;;; LSP
+
+(use-package eglot
+  :custom
+  (eglot-autoshutdown t)
+  (eglot-events-buffer-size 0)
+  (eglot-extend-to-xref t))
+
 ;;; Ef themes
 
 (use-package ef-themes
