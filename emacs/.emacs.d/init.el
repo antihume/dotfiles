@@ -311,6 +311,23 @@ Only activates mappings for languages with installed grammars."
   (eglot-events-buffer-size 0)
   (eglot-extend-to-xref t))
 
+;;; Projects
+
+(use-package project
+  :custom
+  (project-vc-extra-root-markers
+   '(".project" "Makefile" "Cargo.toml" "go.mod" "package.json"
+     "pyproject.toml" "CMakeLists.txt"))
+  (project-switch-commands
+   '((project-find-file "Find file")
+     (project-find-regexp "Find regexp")
+     (project-find-dir "Find directory")
+     (project-dired "Dired")
+     (project-any-command "Other")
+     (project-compile "Compile" ?c)
+     (project-shell "Shell" ?s)
+     (magit-project-status "Magit" ?m))))
+
 ;;; Ef themes
 
 (use-package ef-themes
