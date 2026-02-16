@@ -15,10 +15,10 @@
 
 (use-package emacs
   :preface
-  (defvar my/font-family "CommitMono"
+  (defvar my/font-family "Iosevka SS12"
     "Default font family.")
 
-  (defvar my/font-height 110
+  (defvar my/font-height 120
     "Default font height in 1/10pt units.")
 
   (defun my--enable-show-trailing-whitespace ()
@@ -333,9 +333,9 @@ Only activates mappings for languages with installed grammars."
 (use-package ef-themes
   :ensure t
   :preface
-  (defvar my/ef-themes-light 'ef-summer
+  (defvar my/ef-themes-light 'ef-eagle
     "Default light theme.")
-  (defvar my/ef-themes-dark 'ef-winter
+  (defvar my/ef-themes-dark 'ef-owl
     "Default dark theme.")
   (defun my/ef-themes--pair-member-p (theme)
     (memq theme (list my/ef-themes-light my/ef-themes-dark)))
