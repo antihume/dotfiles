@@ -321,8 +321,7 @@ Only activates mappings for languages with installed grammars."
    ("M-<f5>" . modus-themes-load-random))
   :config
   (setq modus-themes-mixed-fonts t
-        modus-themes-italic-constructs t
-        modus-themes-bold-constructs t)
+        modus-themes-italic-constructs t)
   (modus-themes-load-theme my/ef-themes-dark))
 
 ;;; Org
