@@ -104,9 +104,6 @@
   ;; Which-key
   (which-key-idle-delay 0.5)
 
-  ;; Windmove
-  (windmove-default-keybindings 'super)
-
   ;; Mode line
   (mode-line-compact 'long)
 
@@ -159,10 +156,11 @@
 
   :bind
   (([remap list-buffers] . ibuffer)
+   ("C-c D" . diff-buffer-with-file)
    ("C-c d" . duplicate-dwim)
-   ("C-c m f" . my/find-file-with-sudo)
-   ("C-c m s" . my/scratch-buffer-current-mode)
-   ("C-c m w" . my/path-kill-ring-save)))
+   ("C-c f" . my/find-file-with-sudo)
+   ("C-c s" . my/scratch-buffer-current-mode)
+   ("C-c p" . my/path-kill-ring-save)))
 
 ;;; Files and backups
 
@@ -188,7 +186,7 @@
   (version-control t)
   (auto-save-file-name-transforms `((".*" ,my--auto-save-dir t)))
   :hook
-  (before-save 'my--force-backup-of-buffer))
+  (before-save . my--force-backup-of-buffer))
 
 ;;; Tree-sitter modes
 
@@ -283,15 +281,16 @@ Only activates mappings for languages with installed grammars."
   :preface
   (defvar my--dired-listing-switches
     (if (eq system-type 'gnu/linux)
-	"-Alh --group-directories-first"
-      "-Alh"))
+	"-AGFhlv --group-directories-first"
+      "-AohF"))
   :custom
   (dired-dwim-target t)
+  (dired-free-space nil)
+  (dired-kill-when-opening-new-dired-buffer t)
   (dired-listing-switches my--dired-listing-switches)
+  (dired-mouse-drag-files t)
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
-  (dired-mouse-drag-files t)
-  (dired-free-space nil)
   :bind (:map dired-mode-map
               ("DEL" . dired-up-directory)))
 
@@ -378,7 +377,6 @@ Only activates mappings for languages with installed grammars."
 
 (use-package vertico-directory
   :after vertico
-  :ensure nil
   :bind (:map vertico-map
               ("RET"   . vertico-directory-enter)
               ("DEL"   . vertico-directory-delete-char)
@@ -387,7 +385,6 @@ Only activates mappings for languages with installed grammars."
 
 (use-package vertico-repeat
   :after vertico
-  :ensure nil
   :hook (minibuffer-setup . vertico-repeat-save)
   :bind (("C-c r" . vertico-repeat)))
 
@@ -426,42 +423,28 @@ Only activates mappings for languages with installed grammars."
 ;;; Search and navigation
 
 (use-package consult
-  :bind (("C-c M-x" . consult-mode-command)
-         ("C-c h" . consult-history)
-         ("C-c k" . consult-kmacro)
-         ("C-c m" . consult-man)
-         ("C-c i" . consult-info)
-         ([remap Info-search] . consult-info)
-         ("C-x M-:" . consult-complex-command)
-         ("C-x b" . consult-buffer)
+  :ensure t
+  :bind (("C-x b" . consult-buffer)
          ("C-x 4 b" . consult-buffer-other-window)
          ("C-x 5 b" . consult-buffer-other-frame)
          ("C-x t b" . consult-buffer-other-tab)
          ("C-x r b" . consult-bookmark)
          ("C-x p b" . consult-project-buffer)
-         ("M-#" . consult-register-load)
-         ("M-'" . consult-register-store)
-         ("C-M-#" . consult-register)
          ("M-y" . consult-yank-pop)
          ("M-g e" . consult-compile-error)
-         ("M-g r" . consult-grep-match)
          ("M-g f" . consult-flymake)
          ("M-g g" . consult-goto-line)
          ("M-g M-g" . consult-goto-line)
          ("M-g o" . consult-outline)
          ("M-g m" . consult-mark)
-         ("M-g k" . consult-global-mark)
          ("M-g i" . consult-imenu)
          ("M-g I" . consult-imenu-multi)
          ("M-s d" . consult-find)
          ("M-s c" . consult-locate)
          ("M-s g" . consult-grep)
          ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
          ("M-s l" . consult-line)
          ("M-s L" . consult-line-multi)
-         ("M-s k" . consult-keep-lines)
-         ("M-s u" . consult-focus-lines)
          ("M-s e" . consult-isearch-history)
          :map isearch-mode-map
          ("M-e" . consult-isearch-history)
@@ -477,22 +460,26 @@ Only activates mappings for languages with installed grammars."
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
   :config
+  (consult-customize
+   consult-ripgrep consult-git-grep consult-grep consult-man
+   consult-bookmark consult-recent-file consult-xref
+   consult-source-bookmark consult-source-file-register
+   consult-source-recent-file consult-source-project-recent-file
+   :preview-key '(:debounce 0.25 any))
   (setq consult-narrow-key "<"))
 
 (use-package avy
   :ensure t
-  :bind (("C-'" . avy-goto-char-timer)
-         ("C-;" . avy-goto-char-2)
-         ("M-g g" . avy-goto-line)
+  :bind (("C-," . avy-goto-char-timer)
          ("M-g w" . avy-goto-word-1)
          ("M-g r" . avy-resume))
   :custom
   (avy-all-windows t)
-  (avy-keys '(?q ?w ?e ?d ?m ?k ?l ?o))
+  (avy-background t)
+  (avy-keys '(?q ?w ?e ?d ?m ?j ?k ?l ?o ?i))
   (avy-style 'de-bruijn)
-  (avy-timeout-seconds 0.3)
+  (avy-timeout-seconds 0.25)
   :config
-  (define-key isearch-mode-map (kbd "C-'") #'avy-isearch)
   (with-eval-after-load 'embark
     (defun my--avy-action-embark (pt)
       (unwind-protect
@@ -562,7 +549,7 @@ Only activates mappings for languages with installed grammars."
   :ensure t
   :commands (magit-status magit-blame-addition)
   :custom
-  (magit-define-global-key-bindings 'default)
+  (magit-define-global-key-bindings 'recommended)
   (magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1))
 
 ;;; ᗜˬᗜ
