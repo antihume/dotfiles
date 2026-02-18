@@ -12,9 +12,9 @@ padding = { x = 8, y = 8 }
 dynamic_padding = true
 
 [font]
-normal = { family = "Iosevka SS08", style = "Regular" }
-bold = { family = "Iosevka SS08", style = "Bold" }
-italic = { family = "Iosevka SS08", style = "Italic" }
+normal = { family = "Iosevka SS12", style = "Regular" }
+bold = { family = "Iosevka SS12", style = "Bold" }
+italic = { family = "Iosevka SS12", style = "Italic" }
 size = 12.0
 
 [cursor]
