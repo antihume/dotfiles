@@ -155,12 +155,15 @@
    (prog-mode . visual-wrap-prefix-mode))
 
   :bind
-  (([remap list-buffers] . ibuffer)
-   ("C-c D" . diff-buffer-with-file)
+  (("C-c D" . diff-buffer-with-file)
    ("C-c d" . duplicate-dwim)
    ("C-c f" . my/find-file-with-sudo)
+   ("C-c j" . join-line)
+   ("C-c p" . my/path-kill-ring-save)
    ("C-c s" . my/scratch-buffer-current-mode)
-   ("C-c p" . my/path-kill-ring-save)))
+   ("C-x C-b" . ibuffer)
+   ("C-x k" . kill-current-buffer)
+   ("M-z" . zap-up-to-char)))
 
 ;;; Files and backups
 
@@ -409,7 +412,7 @@ Only activates mappings for languages with installed grammars."
   :ensure t
   :custom
   (corfu-auto t)
-  (corfu-auto-delay 0.5)
+  (corfu-auto-delay 0.375)
   (corfu-cycle t)
   (corfu-popupinfo-delay '(0.25 . 0.25))
   (corfu-popupinfo-max-height 12)
@@ -474,7 +477,7 @@ Only activates mappings for languages with installed grammars."
 
 (use-package avy
   :ensure t
-  :bind (("C-," . avy-goto-char-timer)
+  :bind (("C-;" . avy-goto-char-timer)
          ("M-g w" . avy-goto-word-1)
          ("M-g r" . avy-resume))
   :custom
@@ -485,14 +488,15 @@ Only activates mappings for languages with installed grammars."
   (avy-timeout-seconds 0.25)
   :config
   (with-eval-after-load 'embark
-    (defun my--avy-action-embark (pt)
+    (defun avy-action-embark (pt)
       (unwind-protect
           (save-excursion
             (goto-char pt)
             (embark-act))
-        (select-window (cdr (ring-ref avy-ring 0))))
+	(select-window
+	 (cdr (ring-ref avy-ring 0))))
       t)
-    (setf (alist-get ?. avy-dispatch-alist) #'my--avy-action-embark)))
+    (setf (alist-get ?. avy-dispatch-alist) #'avy-action-embark)))
 
 ;;; Actions
 
@@ -530,7 +534,7 @@ Only activates mappings for languages with installed grammars."
                        embark-isearch-highlight-indicator))
   :bind
   (("C-." . embark-act)
-   ("C-;" . embark-dwim)
+   ("M-." . embark-dwim)
    ("C-h B" . embark-bindings))
   :init
   (setq prefix-help-command #'embark-prefix-help-command)
