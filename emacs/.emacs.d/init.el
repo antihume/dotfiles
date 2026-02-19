@@ -443,8 +443,10 @@ Only activates mappings for languages with installed grammars."
   :init
   (vertico-multiform-mode 1))
 
+(use-package vertico-quick
   :after vertico
   :bind (:map vertico-map
+              ("C-;" . vertico-quick-exit)))
 
 (use-package vertico-repeat
   :after vertico
