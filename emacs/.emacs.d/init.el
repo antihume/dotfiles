@@ -363,7 +363,7 @@ Only activates mappings for languages with installed grammars."
 
 (use-package org
   :custom
-  (org-directory "~/Documents/org")
+  (org-directory "~/org")
   (org-highlight-latex-and-related '(native latex script entities))
   (org-preview-latex-default-process 'dvisgm)
   (org-return-follows-link t)
