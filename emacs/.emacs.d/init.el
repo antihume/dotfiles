@@ -433,13 +433,18 @@ Only activates mappings for languages with installed grammars."
   :init
   (vertico-mode 1))
 
-(use-package vertico-directory
+(use-package vertico-multiform
+  :after vertico
+  :custom
+  (vertico-multiform-categories
+   '((file (:keymap . vertico-directory-map))
+     (consult-grep buffer (vertico-cycle . nil))
+     (consult-location buffer (vertico-cycle . nil))))
+  :init
+  (vertico-multiform-mode 1))
+
   :after vertico
   :bind (:map vertico-map
-              ("RET"   . vertico-directory-enter)
-              ("DEL"   . vertico-directory-delete-char)
-              ("M-DEL" . vertico-directory-delete-word))
-  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
 (use-package vertico-repeat
   :after vertico
