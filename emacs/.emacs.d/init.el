@@ -161,7 +161,6 @@
    ("C-c j" . join-line)
    ("C-c p" . my/path-kill-ring-save)
    ("C-c s" . my/scratch-buffer-current-mode)
-   ("C-x C-b" . ibuffer)
    ("C-x k" . kill-current-buffer)
    ("M-z" . zap-up-to-char)))
 
@@ -296,6 +295,59 @@ Only activates mappings for languages with installed grammars."
   (dired-recursive-deletes 'always)
   :bind (:map dired-mode-map
               ("DEL" . dired-up-directory)))
+
+;; Ibuffer
+
+(use-package ibuffer
+  :bind ("C-x C-b" . ibuffer)
+  :custom
+  (ibuffer-default-sorting-mode 'recency)
+  (ibuffer-expert t)
+  (ibuffer-show-empty-filter-groups nil)
+  (ibuffer-saved-filter-groups
+   '(("default"
+      ("Org"       (mode . org-mode))
+      ("Code"      (or (derived-mode . prog-mode)
+                       (mode . conf-mode)))
+      ("Text"      (derived-mode . text-mode))
+      ("Document" (or (mode . pdf-view-mode)
+                      (mode . doc-view-mode)))
+      ("Dired"     (mode . dired-mode))
+      ("Magit"     (or (derived-mode . magit-mode)
+                       (mode . diff-mode)))
+      ("Terminal" (or (mode . vterm-mode)
+                      (mode . eshell-mode)
+                      (mode . term-mode)
+                      (mode . shell-mode)))
+      ("Help"      (or (derived-mode . help-mode)
+                       (derived-mode . Info-mode)
+                       (derived-mode . apropos-mode)
+                       (mode . Man-mode)
+                       (mode . woman-mode)))
+      ("Emacs"     (or (name . "^\\*scratch\\*$")
+                       (name . "^\\*Messages\\*$")
+                       (name . "^\\*Warnings\\*$")
+                       (name . "^\\*Compile-Log\\*$")
+                       (name . "^\\*Backtrace\\*$")))
+      ("Misc"      (name . "^\\*")))))
+  :hook (ibuffer-mode . (lambda ()
+                          (ibuffer-switch-to-saved-filter-groups "default")))
+  :config
+  (define-ibuffer-column size-h
+    (:name "Size" :inline t)
+    (cond
+     ((> (buffer-size) 1048576) (format "%7.1fM" (/ (buffer-size) 1048576.0)))
+     ((> (buffer-size) 1024)    (format "%7.1fk" (/ (buffer-size) 1024.0)))
+     (t                         (format "%8d"      (buffer-size)))))
+  (setq ibuffer-formats
+        '((mark modified read-only " "
+                (name 30 30 :left :elide)
+                " "
+                (size-h 9 -1 :right)
+                " "
+                (mode 16 16 :left :elide)
+                " "
+                filename-and-process))))
 
 ;;; Diagnostics
 
