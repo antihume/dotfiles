@@ -288,7 +288,6 @@ Only activates mappings for languages with installed grammars."
   :custom
   (dired-dwim-target t)
   (dired-free-space nil)
-  (dired-kill-when-opening-new-dired-buffer t)
   (dired-listing-switches my--dired-listing-switches)
   (dired-mouse-drag-files t)
   (dired-recursive-copies 'always)
