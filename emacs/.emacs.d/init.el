@@ -59,7 +59,10 @@
   (create-lockfiles nil)
   (custom-file null-device)
   (disabled-command-function nil)
+  (read-extended-command-predicate #'command-completion-default-include-p)
   (ring-bell-function 'ignore)
+  (tab-always-indent 'complete)
+  (text-mode-ispell-word-completion nil)
   (use-file-dialog nil)
   (use-short-answers t)
 
@@ -115,9 +118,6 @@
 
   ;; Recentf
   (recentf-max-saved-items 200)
-
-  ;; Midnight
-  (clean-buffer-list-delay-general 1)
 
   :config
 
