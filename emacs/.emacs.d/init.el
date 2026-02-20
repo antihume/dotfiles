@@ -470,20 +470,22 @@ Only activates mappings for languages with installed grammars."
   :ensure t
   :custom
   (corfu-auto t)
-  (corfu-auto-delay 0.375)
+  (corfu-auto-delay 0.25)
+  (corfu-auto-prefix 4)
   (corfu-cycle t)
-  (corfu-popupinfo-delay '(0.25 . 0.25))
-  (corfu-popupinfo-max-height 12)
+  (corfu-preselect 'prompt)
+  (corfu-quit-at-boundary 'separator)
+  (corfu-quit-no-match 'separator)
   :init
-  (global-corfu-mode)
-  (corfu-popupinfo-mode))
+  (global-corfu-mode 1)
+  (corfu-popupinfo-mode 1))
 
 (use-package cape
   :ensure t
+  :after (corfu orderless)
   :init
-  (add-hook 'completion-at-point-functions #'cape-file)
-  (add-hook 'completion-at-point-functions
-            (cape-capf-prefix-length #'cape-dabbrev 2)))
+  (add-hook 'completion-at-point-functions #'cape-dabbrev -10)
+  (add-hook 'completion-at-point-functions #'cape-file -10))
 
 ;;; Search and navigation
 
