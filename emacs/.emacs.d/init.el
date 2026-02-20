@@ -416,7 +416,7 @@ Only activates mappings for languages with installed grammars."
   :custom
   (org-directory "~/org")
   (org-highlight-latex-and-related '(native latex script entities))
-  (org-preview-latex-default-process 'dvisgm)
+  (org-preview-latex-default-process 'dvisvgm)
   (org-return-follows-link t)
   :config
   (plist-put org-format-latex-options :scale 2))
