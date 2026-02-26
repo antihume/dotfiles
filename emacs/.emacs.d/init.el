@@ -1,6 +1,4 @@
-;; -*- lexical-binding: t; -*-
-
-;;; Package management
+;; ᗜˬᗜ -*- lexical-binding: t; -*-
 
 (use-package package
   :custom
@@ -11,16 +9,8 @@
                                 ("nongnu" . 2)
                                 ("melpa" . 1))))
 
-;;; Core configuration
-
 (use-package emacs
   :preface
-  (defvar my/font-family "Iosevka SS12"
-    "Default font family.")
-
-  (defvar my/font-height 120
-    "Default font height in 1/10pt units.")
-
   (defun my--enable-show-trailing-whitespace ()
     (setq-local show-trailing-whitespace t))
 
@@ -30,18 +20,26 @@
   (defun my/find-file-with-sudo ()
     "Find file as root via TRAMP sudo."
     (interactive)
-    (let ((default-directory
-           (concat "/sudo::" (or (file-name-directory (or (buffer-file-name) "")) "/"))))
-      (call-interactively #'find-file)))
+    (if (file-remote-p default-directory)
+        (user-error "Cannot sudo on a remote path")
+      (let* ((base-dir (or (and-let* ((file (buffer-file-name)))
+                             (file-name-directory file))
+                           default-directory
+                           "/"))
+             (default-directory
+              (concat "/sudo::" (file-name-as-directory (expand-file-name base-dir)))))
+        (call-interactively #'find-file))))
 
   (defun my/path-kill-ring-save ()
-    "Save current file path to kill ring."
+    "Save current file or Dired directory path to kill ring."
     (interactive)
-    (if-let* ((filename (buffer-file-name)))
-	(progn
+    (if-let* ((filename (or (buffer-file-name)
+                            (and (derived-mode-p 'dired-mode)
+                                 (dired-current-directory)))))
+        (progn
           (kill-new filename)
           (message "Copied: %s" filename))
-      (user-error "Buffer is not visiting a file")))
+      (user-error "Buffer is not visiting a file or Dired directory")))
 
   (defun my/scratch-buffer-current-mode ()
     "Switch to a scratch buffer in the current major mode."
@@ -51,150 +49,228 @@
            (buf (get-buffer-create name)))
       (switch-to-buffer buf)
       (unless (eq major-mode mode)
-	(funcall mode))))
+        (funcall mode))))
+
+  (defun my/narrow-or-widen-dwim (p)
+    "Widen if buffer is narrowed, narrow-dwim otherwise.
+Dwim means: region, org-src-block, org-subtree, or
+defun, whichever applies first. Narrowing to
+org-src-block actually calls `org-edit-src-code'.
+
+With prefix P, don't widen, just narrow even if buffer
+is already narrowed."
+    (interactive "P")
+    (declare (interactive-only))
+    (cond ((and (buffer-narrowed-p) (not p)) (widen))
+          ((region-active-p)
+           (narrow-to-region (region-beginning)
+                             (region-end)))
+          ((derived-mode-p 'org-mode)
+           ;; `org-edit-src-code' is not a real narrowing
+           ;; command. Remove this first conditional if
+           ;; you don't want it.
+           (cond ((ignore-errors (org-edit-src-code) t)
+                  (delete-other-windows))
+                 ((ignore-errors (org-narrow-to-block) t))
+                 (t (org-narrow-to-subtree))))
+          ((and (derived-mode-p 'latex-mode)
+                (fboundp 'LaTeX-narrow-to-environment))
+           (LaTeX-narrow-to-environment))
+          (t (narrow-to-defun))))
 
   :custom
 
-  ;; General behavior
-  (create-lockfiles nil)
-  (custom-file null-device)
+  ;; Prompts & Dialogs
+  (confirm-kill-emacs #'yes-or-no-p)
   (disabled-command-function nil)
-  (read-extended-command-predicate #'command-completion-default-include-p)
   (ring-bell-function 'ignore)
-  (tab-always-indent 'complete)
-  (text-mode-ispell-word-completion nil)
+  (use-dialog-box nil)
   (use-file-dialog nil)
   (use-short-answers t)
 
-  ;; Kill ring
+  ;; Files & Sessions
+  (bookmark-save-flag 1)
+  (create-lockfiles nil)
+  (custom-file null-device)
+  (find-file-visit-truename t)
+  (recentf-max-saved-items 200)
+  (vc-follow-symlinks t)
+
+  ;; Editing
+  (indent-tabs-mode nil)
+  (kill-whole-line t)
+  (sentence-end-double-space nil)
+  (set-mark-command-repeat-pop t)
+  (tab-always-indent 'complete)
+  (tab-width 4)
+  (text-mode-ispell-word-completion nil)
+
+  ;; Kill Ring & Clipboard
   (kill-do-not-save-duplicates t)
   (save-interprogram-paste-before-kill t)
 
-  ;; Scrolling
-  (pixel-scroll-precision-use-momentum t)
-  (scroll-conservatively 101)
-  (scroll-preserve-screen-position t)
-  (scroll-step 1)
+  ;; Minibuffer & Completion
+  (enable-recursive-minibuffers t)
+  (read-extended-command-predicate #'command-completion-default-include-p)
 
   ;; Search
+  (isearch-allow-scroll t)
   (isearch-lazy-count t)
   (lazy-highlight-initial-delay 0)
 
-  ;; Minibuffer
-  (enable-recursive-minibuffers t)
-  (minibuffer-visible-completions t)
+  ;; Scrolling & Performance
+  (auto-window-vscroll nil)
+  (fast-but-imprecise-scrolling t)
+  (pixel-scroll-precision-use-momentum t)
+  (redisplay-skip-fontification-on-input t)
+  (scroll-conservatively 101)
+  (scroll-preserve-screen-position t)
 
-  ;; Parens
-  (blink-matching-paren t)
-  (show-paren-context-when-offscreen 'overlay)
-  (show-paren-delay 0)
+  ;; Display & Windows
+  (display-line-numbers-type t)
+  (fill-column 80)
+  (mode-line-compact 'long)
+  (word-wrap t)
+  (x-stretch-cursor t)
 
-  ;; Line numbers
-  (display-line-numbers-type 'relative)
-
-  ;; Help
+  ;; Help & Discovery
   (apropos-do-all t)
   (describe-bindings-outline t)
   (help-window-select t)
-
-  ;; Navigation
-  (recenter-positions '(top middle bottom))
-  (set-mark-command-repeat-pop t)
-
-  ;; Compilation
-  (next-error-message-highlight t)
-
-  ;; Which-key
   (which-key-idle-delay 0.5)
 
-  ;; Mode line
-  (mode-line-compact 'long)
+  ;; Compilation
+  (compilation-always-kill t)
+  (compilation-scroll-output 'first-error)
+  (next-error-message-highlight t)
 
-  ;; Uniquify
+  ;; Buffer Naming
   (uniquify-after-kill-buffer-p t)
   (uniquify-buffer-name-style 'forward)
   (uniquify-ignore-buffers-re "^\\*")
   (uniquify-separator "/")
 
-  ;; Recentf
-  (recentf-max-saved-items 200)
+  ;; Calculator
+  (calc-group-char ",")
+  (calc-group-digits t)
 
   :config
 
   ;; Font
-  (when (member my/font-family (font-family-list))
+  (when (member "Iosevka SS12" (font-family-list))
     (set-face-attribute 'default nil
-                        :family my/font-family
-                        :height my/font-height))
+                        :family "Iosevka SS12"
+                        :height 120))
 
-  ;; Global modes
-  (column-number-mode 1)
-  (context-menu-mode 1)
-  (delete-selection-mode 1)
-  (editorconfig-mode 1)
-  (global-auto-revert-mode 1)
-  (global-goto-address-mode 1)
-  (global-so-long-mode 1)
-  (midnight-mode 1)
-  (minibuffer-depth-indicate-mode 1)
-  (pixel-scroll-precision-mode 1)
-  (recentf-mode 1)
-  (repeat-mode 1)
-  (save-place-mode 1)
-  (savehist-mode 1)
-  (show-paren-mode 1)
-  (which-key-mode 1)
-  (winner-mode 1)
+  ;; Global Modes
+  (column-number-mode)
+  (context-menu-mode)
+  (delete-selection-mode)
+  (editorconfig-mode)
+  (global-auto-revert-mode)
+  (global-goto-address-mode)
+  (global-so-long-mode)
+  (minibuffer-depth-indicate-mode)
+  (pixel-scroll-precision-mode)
+  (recentf-mode)
+  (repeat-mode)
+  (save-place-mode)
+  (which-key-mode)
+
+  ;; Pulse after mark navigation.
+  (advice-add #'pop-to-mark-command :after #'my--pulse-line-after-jump)
+  (advice-add #'pop-global-mark :after #'my--pulse-line-after-jump)
 
   :hook
-  ((prog-mode . display-line-numbers-mode)
+  ((imenu-after-jump . my--pulse-line-after-jump)
+   (prog-mode . display-line-numbers-mode)
    (prog-mode . electric-pair-local-mode)
    (prog-mode . hl-line-mode)
    (prog-mode . my--enable-delete-trailing-whitespace)
    (prog-mode . my--enable-show-trailing-whitespace)
-   (prog-mode . visual-wrap-prefix-mode))
+   (prog-mode . visual-wrap-prefix-mode)
+   (xref-after-jump . my--pulse-line-after-jump))
 
   :bind
   (("C-c D" . diff-buffer-with-file)
    ("C-c d" . duplicate-dwim)
    ("C-c f" . my/find-file-with-sudo)
    ("C-c j" . join-line)
+   ("C-c m" . my/narrow-or-widen-dwim)
    ("C-c p" . my/path-kill-ring-save)
+   ("C-c R" . ff-find-other-file)
    ("C-c s" . my/scratch-buffer-current-mode)
    ("C-x k" . kill-current-buffer)
+   ("M-c" . capitalize-dwim)
+   ("M-l" . downcase-dwim)
+   ("M-u" . upcase-dwim)
    ("M-z" . zap-up-to-char)))
 
-;;; Files and backups
+(use-package pulse
+  :preface
+  (defface my--pulse-face
+    '((t :inherit highlight :extend t))
+    "My face for pulse highlights.")
+  (defun my--pulse-line-after-jump (&rest _)
+    (pulse-momentary-highlight-one-line (point) 'my--pulse-face))
+  :custom
+  (pulse-delay 0.03125)
+  (pulse-iterations 16))
+
+(use-package window
+  :preface
+  (defalias 'my/other-window-mru-or-split
+    (let ((windows nil) (index 0))
+      (lambda ()
+        "Cycle windows in most-recently-used order.
+Freeze order on first call; advance on repeat; reset otherwise.
+If there is only one window, split it sensibly first."
+        (interactive)
+        (when (one-window-p t)
+          (split-window-sensibly))
+        (if (eq last-command 'my/other-window-mru-or-split)
+            (setq index (mod (1+ index) (length windows)))
+          (select-window (selected-window))
+          (setq windows (sort (window-list nil 'nomini)
+                              :key #'window-use-time :reverse t)
+                index 1))
+        (select-window (nth index windows) 'norecord))))
+  :bind
+  (("C-x o" . my/other-window-mru-or-split)
+   :map other-window-repeat-map
+   ("o" . my/other-window-mru-or-split))
+  :custom
+  (window-combination-resize t)
+  :config
+  (put 'my/other-window-mru-or-split 'repeat-map 'other-window-repeat-map)
+  (advice-add #'other-window :after #'my--pulse-line-after-jump)
+  (advice-add #'my/other-window-mru-or-split :after #'my--pulse-line-after-jump))
 
 (use-package files
   :preface
-  (defvar my--backup-dir
-    (expand-file-name "backup/" user-emacs-directory))
-  (defvar my--auto-save-dir
-    (expand-file-name "auto-save/" user-emacs-directory))
   (defun my--force-backup-of-buffer ()
     (setq buffer-backed-up nil))
   :init
-  (make-directory my--backup-dir t)
-  (make-directory my--auto-save-dir t)
+  (make-directory (expand-file-name "backup/" user-emacs-directory) t)
+  (make-directory (expand-file-name "auto-save/" user-emacs-directory) t)
   :custom
+  (auto-save-file-name-transforms
+   `((".*" ,(expand-file-name "auto-save/" user-emacs-directory) t)))
   (backup-by-copying t)
-  (backup-directory-alist `(("." . ,my--backup-dir)))
+  (backup-directory-alist
+   `(("." . ,(expand-file-name "backup/" user-emacs-directory))))
   (delete-by-moving-to-trash t)
   (delete-old-versions t)
-  (kept-new-versions 10)
-  (kept-old-versions 0)
+  (kept-new-versions 8)
+  (kept-old-versions 2)
   (require-final-newline t)
   (version-control t)
-  (auto-save-file-name-transforms `((".*" ,my--auto-save-dir t)))
   :hook
   (before-save . my--force-backup-of-buffer))
 
-;;; Tree-sitter modes
-
 (use-package treesit
   :preface
-  (defvar my--treesit-recipes
+  (defconst my--treesit-recipes
     '((bash
        :source ("https://github.com/tree-sitter/tree-sitter-bash" "v0.21.0")
        :remap (sh-mode . bash-ts-mode))
@@ -249,24 +325,27 @@ Each entry is (LANG . PLIST) where PLIST keys are:
   (defun my--treesit-configure-modes ()
     "Configure mode associations from `my--treesit-recipes'.
 Only activates mappings for languages with installed grammars."
-    (dolist (recipe my--treesit-recipes)
-      (let ((lang (car recipe))
-            (props (cdr recipe)))
-	(when (treesit-language-available-p lang)
-          (when-let* ((remap (plist-get props :remap)))
-            (add-to-list 'major-mode-remap-alist remap))
-          (when-let* ((entry (plist-get props :auto-mode)))
-            (add-to-list 'auto-mode-alist entry)))))
-    (when (and (treesit-language-available-p 'c)
-               (treesit-language-available-p 'cpp))
-      (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))))
+    (when (treesit-available-p)
+      (dolist (recipe my--treesit-recipes)
+        (let ((lang (car recipe))
+              (props (cdr recipe)))
+          (when (treesit-language-available-p lang)
+            (when-let* ((remap (plist-get props :remap)))
+              (add-to-list 'major-mode-remap-alist remap))
+            (when-let* ((entry (plist-get props :auto-mode)))
+              (add-to-list 'auto-mode-alist entry)))))
+      (when (and (treesit-language-available-p 'c)
+                 (treesit-language-available-p 'cpp))
+        (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode)))))
 
   (defun my/treesit-install-all-grammars ()
     "Install all tree-sitter grammars from `my--treesit-recipes'."
     (interactive)
+    (unless (treesit-available-p)
+      (user-error "This Emacs was built without tree-sitter support"))
     (dolist (recipe my--treesit-recipes)
       (let ((lang (car recipe)))
-	(unless (treesit-language-available-p lang)
+        (unless (treesit-language-available-p lang)
           (treesit-install-language-grammar lang))))
     (my--treesit-configure-modes))
 
@@ -274,16 +353,30 @@ Only activates mappings for languages with installed grammars."
   (treesit-font-lock-level 4)
 
   :config
-  (setq treesit-language-source-alist (my--treesit-build-source-alist))
-  (my--treesit-configure-modes))
+  (when (treesit-available-p)
+    (setq treesit-language-source-alist (my--treesit-build-source-alist))
+    (my--treesit-configure-modes)))
 
-;;; Dired
+(use-package savehist
+  :custom
+  (savehist-additional-variables
+   '(kill-ring search-ring regexp-search-ring compile-command corfu-history))
+  :config
+  (savehist-mode))
+
+(use-package paren
+  :custom
+  (show-paren-delay 0)
+  (show-paren-when-point-inside-paren t)
+  (show-paren-context-when-offscreen 'overlay)
+  :config
+  (show-paren-mode))
 
 (use-package dired
   :preface
-  (defvar my--dired-listing-switches
+  (defconst my--dired-listing-switches
     (if (eq system-type 'gnu/linux)
-	"-AGFhlv --group-directories-first"
+        "-AGFhlv --group-directories-first"
       "-AohF"))
   :custom
   (dired-dwim-target t)
@@ -293,44 +386,51 @@ Only activates mappings for languages with installed grammars."
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
   :bind (:map dired-mode-map
-              ("DEL" . dired-up-directory)))
-
-;; Ibuffer
+              ("DEL" . dired-up-directory))
+  :hook
+  (dired-mode . hl-line-mode)
+  (dired-mode . dired-hide-details-mode))
 
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer)
+  :preface
+  (defun my--ibuffer-init ()
+    (ibuffer-switch-to-saved-filter-groups "Default"))
   :custom
   (ibuffer-default-sorting-mode 'recency)
   (ibuffer-expert t)
+  (ibuffer-old-time 48)
   (ibuffer-show-empty-filter-groups nil)
   (ibuffer-saved-filter-groups
-   '(("default"
+   '(("Default"
       ("Org"       (mode . org-mode))
-      ("Code"      (or (derived-mode . prog-mode)
-                       (mode . conf-mode)))
+      ("Code"      (and (or (derived-mode . prog-mode)
+                            (derived-mode . conf-mode))
+                        (not (name . "^\\*"))))
+      ("Compilation" (and (derived-mode . compilation-mode)
+                          (not (name . "^\\*"))))
       ("Text"      (derived-mode . text-mode))
-      ("Document" (or (mode . pdf-view-mode)
-                      (mode . doc-view-mode)))
+      ("Document"  (or (mode . pdf-view-mode)
+                       (mode . doc-view-mode)
+                       (mode . image-mode)))
+      ("Web"       (mode . eww-mode))
       ("Dired"     (mode . dired-mode))
-      ("Magit"     (or (derived-mode . magit-mode)
-                       (mode . diff-mode)))
-      ("Terminal" (or (mode . vterm-mode)
-                      (mode . eshell-mode)
-                      (mode . term-mode)
-                      (mode . shell-mode)))
+      ("Version Control" (or (derived-mode . magit-mode)
+                             (derived-mode . vc-dir-mode)
+                             (mode . diff-mode)))
+      ("Terminal"  (or (mode . vterm-mode)
+                       (mode . eshell-mode)
+                       (mode . term-mode)
+                       (mode . shell-mode)))
       ("Help"      (or (derived-mode . help-mode)
                        (derived-mode . Info-mode)
                        (derived-mode . apropos-mode)
+                       (derived-mode . Custom-mode)
                        (mode . Man-mode)
                        (mode . woman-mode)))
-      ("Emacs"     (or (name . "^\\*scratch\\*$")
-                       (name . "^\\*Messages\\*$")
-                       (name . "^\\*Warnings\\*$")
-                       (name . "^\\*Compile-Log\\*$")
-                       (name . "^\\*Backtrace\\*$")))
-      ("Misc"      (name . "^\\*")))))
-  :hook (ibuffer-mode . (lambda ()
-                          (ibuffer-switch-to-saved-filter-groups "default")))
+      ("Special"   (name . "^\\*")))))
+  :hook
+  (ibuffer-mode . my--ibuffer-init)
   :config
   (define-ibuffer-column size-h
     (:name "Size" :inline t)
@@ -339,7 +439,7 @@ Only activates mappings for languages with installed grammars."
      ((> (buffer-size) 1024)    (format "%7.1fk" (/ (buffer-size) 1024.0)))
      (t                         (format "%8d"      (buffer-size)))))
   (setq ibuffer-formats
-        '((mark modified read-only " "
+        '((mark modified read-only locked " "
                 (name 30 30 :left :elide)
                 " "
                 (size-h 9 -1 :right)
@@ -348,25 +448,22 @@ Only activates mappings for languages with installed grammars."
                 " "
                 filename-and-process))))
 
-;;; Diagnostics
-
 (use-package flymake
+  :defer t
   :custom
   (flymake-no-changes-timeout 0.5)
   (flymake-suppress-zero-counters t)
   (flymake-wrap-around t))
 
-;;; LSP
-
 (use-package eglot
+  :defer t
   :custom
   (eglot-autoshutdown t)
-  (eglot-events-buffer-size 0)
+  (eglot-events-buffer-size 20000)
   (eglot-extend-to-xref t))
 
-;;; Projects
-
 (use-package project
+  :defer t
   :custom
   (project-vc-extra-root-markers
    '(".project" "Makefile" "Cargo.toml" "go.mod" "package.json"
@@ -378,41 +475,61 @@ Only activates mappings for languages with installed grammars."
      (project-dired "Dired")
      (project-any-command "Other")
      (project-compile "Compile" ?c)
-     (project-shell "Shell" ?s)
+     (project-vterm "Terminal" ?t)
      (magit-project-status "Magit" ?m))))
 
-;;; Ef themes
+(use-package tab-bar
+  :bind
+  (("C-c [" . tab-bar-history-back)
+   ("C-c ]" . tab-bar-history-forward)
+   :map tab-bar-history-mode-map
+   ("C-c <left>" . nil)
+   ("C-c <right>" . nil)
+   :map tab-bar-history-repeat-map
+   ("<left>" . nil)
+   ("<right>" . nil)
+   ("[" . tab-bar-history-back)
+   ("]" . tab-bar-history-forward))
+  :custom
+  (tab-bar-auto-width t)
+  (tab-bar-close-button-show nil)
+  (tab-bar-new-button-show nil)
+  (tab-bar-new-tab-choice #'scratch-buffer)
+  :config
+  (tab-bar-history-mode)
+  (tab-bar-mode))
 
 (use-package ef-themes
   :ensure t
   :preface
-  (defvar my/ef-themes-light 'ef-eagle
+  (defconst my/ef-themes-light 'ef-reverie
     "Default light theme.")
-  (defvar my/ef-themes-dark 'ef-owl
+  (defconst my/ef-themes-dark 'ef-dream
     "Default dark theme.")
-  (defun my/ef-themes--pair-member-p (theme)
+  (defun my--ef-themes-pair-member-p (theme)
     (memq theme (list my/ef-themes-light my/ef-themes-dark)))
   (defun my/ef-themes-toggle ()
     "Toggle between `my/ef-themes-dark' and `my/ef-themes-light'."
     (interactive)
-    (let* ((current (car (seq-filter #'my/ef-themes--pair-member-p custom-enabled-themes)))
+    (let* ((current (car (seq-filter #'my--ef-themes-pair-member-p custom-enabled-themes)))
            (next (if (eq current my/ef-themes-dark) my/ef-themes-light my/ef-themes-dark)))
       (mapc #'disable-theme custom-enabled-themes)
       (modus-themes-load-theme next)))
   :init
-  (ef-themes-take-over-modus-themes-mode 1)
+  (ef-themes-take-over-modus-themes-mode)
   :bind
   (("<f5>"   . my/ef-themes-toggle)
    ("C-<f5>" . modus-themes-select)
    ("M-<f5>" . modus-themes-load-random))
+  :custom
+  (modus-themes-mixed-fonts t)
+  (modus-themes-italic-constructs t)
   :config
-  (setq modus-themes-mixed-fonts t
-        modus-themes-italic-constructs t)
+  (setq modus-themes-common-palette-overrides modus-themes-preset-overrides-faint)
   (modus-themes-load-theme my/ef-themes-dark))
 
-;;; Org
-
 (use-package org
+  :defer t
   :custom
   (org-directory "~/org")
   (org-highlight-latex-and-related '(native latex script entities))
@@ -420,8 +537,6 @@ Only activates mappings for languages with installed grammars."
   (org-return-follows-link t)
   :config
   (plist-put org-format-latex-options :scale 2))
-
-;;; Completion
 
 (use-package vertico
   :ensure t
@@ -431,7 +546,7 @@ Only activates mappings for languages with installed grammars."
   (vertico-cycle t)
   (vertico-preselect 'first)
   :init
-  (vertico-mode 1))
+  (vertico-mode))
 
 (use-package vertico-multiform
   :after vertico
@@ -441,17 +556,18 @@ Only activates mappings for languages with installed grammars."
      (consult-grep buffer (vertico-cycle . nil))
      (consult-location buffer (vertico-cycle . nil))))
   :init
-  (vertico-multiform-mode 1))
+  (vertico-multiform-mode))
 
 (use-package vertico-quick
   :after vertico
   :bind (:map vertico-map
-              ("C-;" . vertico-quick-exit)))
+              ("M-j" . vertico-quick-exit)))
 
 (use-package vertico-repeat
   :after vertico
   :hook (minibuffer-setup . vertico-repeat-save)
-  :bind (("C-c r" . vertico-repeat)))
+  :bind
+  ("C-c r" . vertico-repeat))
 
 (use-package orderless
   :ensure t
@@ -463,53 +579,77 @@ Only activates mappings for languages with installed grammars."
 
 (use-package marginalia
   :ensure t
+  :bind (:map minibuffer-local-map
+              ("M-A" . marginalia-cycle))
   :init
-  (marginalia-mode 1))
+  (marginalia-mode))
 
 (use-package corfu
   :ensure t
+  :bind
+  (:map corfu-map
+        ("TAB" . corfu-next)
+        ([tab] . corfu-next)
+        ("S-TAB" . corfu-previous)
+        ([backtab] . corfu-previous)
+        ("<remap> <next-line>" . nil)
+        ("<remap> <previous-line>" . nil))
   :custom
   (corfu-auto t)
-  (corfu-auto-delay 0.25)
+  (corfu-auto-delay 0.1875)
   (corfu-auto-prefix 4)
   (corfu-cycle t)
   (corfu-preselect 'prompt)
+  (corfu-preview-current nil)
+  (corfu-on-exact-match nil)
   (corfu-quit-at-boundary 'separator)
   (corfu-quit-no-match 'separator)
   :init
-  (global-corfu-mode 1)
-  (corfu-popupinfo-mode 1))
+  (global-corfu-mode)
+  (corfu-history-mode)
+  (corfu-popupinfo-mode))
 
 (use-package cape
   :ensure t
-  :after (corfu orderless)
-  :init
-  (add-hook 'completion-at-point-functions #'cape-dabbrev -10)
-  (add-hook 'completion-at-point-functions #'cape-file -10))
-
-;;; Search and navigation
+  :bind ("M-+" . cape-prefix-map)
+  :preface
+  (defun my--cape-setup-capf ()
+    (add-hook 'completion-at-point-functions #'cape-file t t)
+    (add-hook 'completion-at-point-functions #'cape-elisp-block t t)
+    (add-hook 'completion-at-point-functions #'cape-dabbrev t t))
+  :hook
+  ((prog-mode . my--cape-setup-capf)
+   (conf-mode . my--cape-setup-capf)
+   (text-mode . my--cape-setup-capf)
+   (comint-mode . my--cape-setup-capf)
+   (eshell-mode . my--cape-setup-capf)))
 
 (use-package consult
   :ensure t
-  :bind (("C-x b" . consult-buffer)
+  :bind (("C-c M-x" . consult-mode-command)
+         ("C-x M-:" . consult-complex-command)
+         ("C-x b" . consult-buffer)
          ("C-x 4 b" . consult-buffer-other-window)
          ("C-x 5 b" . consult-buffer-other-frame)
          ("C-x t b" . consult-buffer-other-tab)
          ("C-x r b" . consult-bookmark)
          ("C-x p b" . consult-project-buffer)
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)
+         ("C-M-#" . consult-register)
          ("M-y" . consult-yank-pop)
          ("M-g e" . consult-compile-error)
          ("M-g f" . consult-flymake)
-         ("M-g g" . consult-goto-line)
-         ("M-g M-g" . consult-goto-line)
          ("M-g o" . consult-outline)
          ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
          ("M-g i" . consult-imenu)
          ("M-g I" . consult-imenu-multi)
          ("M-s d" . consult-find)
          ("M-s c" . consult-locate)
          ("M-s g" . consult-grep)
          ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
          ("M-s l" . consult-line)
          ("M-s L" . consult-line-multi)
          ("M-s e" . consult-isearch-history)
@@ -532,33 +672,42 @@ Only activates mappings for languages with installed grammars."
    consult-bookmark consult-recent-file consult-xref
    consult-source-bookmark consult-source-file-register
    consult-source-recent-file consult-source-project-recent-file
-   :preview-key '(:debounce 0.25 any))
-  (setq consult-narrow-key "<"))
+   :preview-key '(:debounce 0.5 any))
+  (setq consult-narrow-key "C-+")
+  :hook
+  (consult-after-jump . my--pulse-line-after-jump))
 
 (use-package avy
   :ensure t
-  :bind (("C-;" . avy-goto-char-timer)
+  :preface
+  (defun avy-action-embark (pt)
+    (unwind-protect
+        (save-excursion
+          (goto-char pt)
+          (embark-act))
+      (select-window
+       (cdr (ring-ref avy-ring 0))))
+    t)
+  :bind (("M-g l" . avy-goto-end-of-line)
+         ("M-g r" . avy-resume)
          ("M-g w" . avy-goto-word-1)
-         ("M-g r" . avy-resume))
+         ("M-j"   . avy-goto-char-timer)
+         :map isearch-mode-map
+         ("M-j"   . avy-isearch))
   :custom
   (avy-all-windows t)
   (avy-background t)
-  (avy-keys '(?q ?w ?e ?d ?m ?j ?k ?l ?o ?i))
-  (avy-style 'de-bruijn)
+  (avy-keys '(?q ?w ?e ?d ?p ?o ?k ?j ?l))
+  (avy-style 'at-full)
   (avy-timeout-seconds 0.25)
   :config
-  (with-eval-after-load 'embark
-    (defun avy-action-embark (pt)
-      (unwind-protect
-          (save-excursion
-            (goto-char pt)
-            (embark-act))
-	(select-window
-	 (cdr (ring-ref avy-ring 0))))
-      t)
-    (setf (alist-get ?. avy-dispatch-alist) #'avy-action-embark)))
-
-;;; Actions
+  (dolist (cmd '(avy-goto-end-of-line
+                 avy-resume
+                 avy-goto-word-1
+                 avy-goto-char-timer
+                 avy-isearch))
+    (advice-add cmd :after #'my--pulse-line-after-jump))
+  (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark))
 
 (use-package embark
   :ensure t
@@ -568,30 +717,30 @@ Only activates mappings for languages with installed grammars."
 The which-key popup is delayed by `which-key-idle-delay'."
     (let ((timer nil))
       (lambda (&optional keymap targets prefix)
-	(if (null keymap)
+        (if (null keymap)
             (progn
               (when timer (cancel-timer timer) (setq timer nil))
               (which-key--hide-popup-ignore-command))
           (when timer (cancel-timer timer))
           (setq timer
-		(run-with-idle-timer
-		 which-key-idle-delay nil
-		 (lambda ()
+                (run-with-idle-timer
+                 which-key-idle-delay nil
+                 (lambda ()
                    (setq timer nil)
                    (which-key--show-keymap
                     (if (eq (plist-get (car targets) :type) 'embark-become)
-			"Become"
+                        "Become"
                       (format "Act on %s '%s'%s"
                               (plist-get (car targets) :type)
                               (embark--truncate-target (plist-get (car targets) :target))
                               (if (cdr targets) " " "")))
                     (if prefix
-			(pcase (lookup-key keymap prefix 'accept-default)
+                        (pcase (lookup-key keymap prefix 'accept-default)
                           ((and (pred keymapp) km) km)
                           (_ (key-binding prefix 'accept-default)))
                       keymap)
                     nil nil t (lambda (binding)
-				(not (string-suffix-p "-argument" (cdr binding))))))))))))
+                                (not (string-suffix-p "-argument" (cdr binding))))))))))))
   (defun my--embark-hide-which-key-indicator (fn &rest args)
     "Hide the which-key indicator when using the completing-read prompter."
     (which-key--hide-popup-ignore-command)
@@ -618,17 +767,54 @@ The which-key popup is delayed by `which-key-idle-delay'."
 
 (use-package embark-consult
   :ensure t
-  :after (embark consult)
-  :hook (embark-collect-mode . consult-preview-at-point-mode))
-
-;;; Version control
+  :after (embark consult))
 
 (use-package magit
   :ensure t
-  :commands (magit-status magit-blame-addition)
+  :commands (magit-status magit-dispatch magit-file-dispatch)
   :custom
   (magit-define-global-key-bindings 'recommended)
   (magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1))
+
+(use-package vterm
+  :ensure t
+  :preface
+  (defun project-vterm ()
+    "Open vterm in the current project root, or the current directory."
+    (interactive)
+    (let* ((root (or (when-let* ((proj (project-current)))
+                       (project-root proj))
+                     default-directory))
+           (name (format "*vterm %s*" (abbreviate-file-name root)))
+           (buf (get-buffer name)))
+      (if buf
+          (switch-to-buffer buf)
+        (let ((default-directory root))
+          (vterm name)))))
+  :custom
+  (vterm-always-compile-module t)
+  (vterm-kill-buffer-on-exit t)
+  (vterm-max-scrollback 10000)
+  (vterm-timer-delay nil)
+  :bind
+  (("C-c t" . vterm)
+   ("C-c T" . project-vterm)
+   :map vterm-mode-map
+   ("C-q" . vterm-send-next-key)))
+
+(use-package pdf-tools
+  :ensure t
+  :mode ("\\.pdf\\'" . pdf-view-mode)
+  :custom
+  (pdf-annot-activate-created-annotations t)
+  (pdf-view-resize-factor 1.125)
+  (pdf-view-use-imagemagick nil)
+  (pdf-view-use-scaling t)
+  :bind
+  (:map pdf-view-mode-map
+        ("<f6>" . pdf-view-midnight-minor-mode))
+  :config
+  (pdf-loader-install))
 
 ;;; ᗜˬᗜ
 
