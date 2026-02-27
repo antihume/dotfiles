@@ -177,10 +177,6 @@ is already narrowed."
   (save-place-mode)
   (which-key-mode)
 
-  ;; Pulse after mark navigation.
-  (advice-add #'pop-to-mark-command :after #'my--pulse-line-after-jump)
-  (advice-add #'pop-global-mark :after #'my--pulse-line-after-jump)
-
   :hook
   ((imenu-after-jump . my--pulse-line-after-jump)
    (prog-mode . display-line-numbers-mode)
@@ -215,7 +211,19 @@ is already narrowed."
     (pulse-momentary-highlight-one-line (point) 'my--pulse-face))
   :custom
   (pulse-delay 0.03125)
-  (pulse-iterations 16))
+  (pulse-iterations 16)
+  :config
+  (dolist (cmd '(avy-goto-end-of-line
+                 avy-resume
+                 avy-goto-word-1
+                 avy-goto-char-timer
+                 avy-isearch))
+    (advice-add cmd :after #'my--pulse-line-after-jump))
+  (advice-add #'my/other-window-mru-or-split :after #'my--pulse-line-after-jump)
+  (advice-add #'other-window :after #'my--pulse-line-after-jump)
+  (advice-add #'pop-global-mark :after #'my--pulse-line-after-jump)
+  (advice-add #'pop-to-mark-command :after #'my--pulse-line-after-jump))
+
 
 (use-package window
   :preface
@@ -242,9 +250,7 @@ If there is only one window, split it sensibly first."
   :custom
   (window-combination-resize t)
   :config
-  (put 'my/other-window-mru-or-split 'repeat-map 'other-window-repeat-map)
-  (advice-add #'other-window :after #'my--pulse-line-after-jump)
-  (advice-add #'my/other-window-mru-or-split :after #'my--pulse-line-after-jump))
+  (put 'my/other-window-mru-or-split 'repeat-map 'other-window-repeat-map))
 
 (use-package files
   :preface
@@ -701,12 +707,6 @@ Only activates mappings for languages with installed grammars."
   (avy-style 'at-full)
   (avy-timeout-seconds 0.25)
   :config
-  (dolist (cmd '(avy-goto-end-of-line
-                 avy-resume
-                 avy-goto-word-1
-                 avy-goto-char-timer
-                 avy-isearch))
-    (advice-add cmd :after #'my--pulse-line-after-jump))
   (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark))
 
 (use-package embark
