@@ -113,11 +113,6 @@ is already narrowed."
   (enable-recursive-minibuffers t)
   (read-extended-command-predicate #'command-completion-default-include-p)
 
-  ;; Search
-  (isearch-allow-scroll t)
-  (isearch-lazy-count t)
-  (lazy-highlight-initial-delay 0)
-
   ;; Scrolling & Performance
   (auto-window-vscroll nil)
   (fast-but-imprecise-scrolling t)
@@ -137,12 +132,7 @@ is already narrowed."
   (apropos-do-all t)
   (describe-bindings-outline t)
   (help-window-select t)
-  (which-key-idle-delay 0.5)
-
-  ;; Compilation
-  (compilation-always-kill t)
-  (compilation-scroll-output 'first-error)
-  (next-error-message-highlight t)
+  (which-key-idle-delay 0.375)
 
   ;; Buffer Naming
   (uniquify-after-kill-buffer-p t)
@@ -201,6 +191,23 @@ is already narrowed."
    ("M-l" . downcase-dwim)
    ("M-u" . upcase-dwim)
    ("M-z" . zap-up-to-char)))
+
+(use-package isearch
+  :custom
+  (isearch-allow-scroll t)
+  (isearch-lazy-count t)
+  (lazy-highlight-initial-delay 0))
+
+(use-package compile
+  :defer t
+  :bind
+  (("C-c c" . recompile)
+   ("C-c C" . compile))
+  :custom
+  (compilation-always-kill t)
+  (compilation-auto-jump-to-first-error 'if-location-known)
+  (compilation-scroll-output 'first-error)
+  (next-error-message-highlight t))
 
 (use-package pulse
   :preface
