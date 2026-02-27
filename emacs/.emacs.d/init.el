@@ -97,6 +97,7 @@ is already narrowed."
   (vc-follow-symlinks t)
 
   ;; Editing
+  (delete-trailing-whitespace-exclude-patterns '("^//.*" "^#.*" "^--.*" "^/*.*"))
   (indent-tabs-mode nil)
   (kill-whole-line t)
   (sentence-end-double-space nil)
