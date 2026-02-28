@@ -693,6 +693,7 @@ Only activates mappings for languages with installed grammars."
 
 (use-package avy
   :ensure t
+  :demand t
   :preface
   (defun avy-action-embark (pt)
     (unwind-protect
@@ -702,10 +703,191 @@ Only activates mappings for languages with installed grammars."
       (select-window
        (cdr (ring-ref avy-ring 0))))
     t)
+  (defun avy-goto-char-flash (&optional arg)
+    (interactive "P")
+    (avy-with avy-goto-char-flash
+      (let* ((str "")
+             (avy-all-windows (if arg (not avy-all-windows) avy-all-windows))
+             (alphabet (append "asdfghjklqwertyuiopzxcvbnm\
+ASDFGHJKLQWERTYUIOPZXCVBNM" nil))
+             (used-map (make-hash-table :test 'equal))
+             sorted key-to-cand flash-ovs res)
+        (cl-labels ((cand-id (cand)
+                      (list (cdr cand) (caar cand)))
+                    (reusable-label-p (label)
+                      (= label (downcase label))))
+          (unwind-protect
+              (progn
+                (avy--make-backgrounds (avy-window-list))
+                (setq res
+                      (catch 'done
+                        (while t
+                          (mapc #'delete-overlay flash-ovs)
+                          (setq flash-ovs nil sorted nil key-to-cand nil)
+                          (when (> (length str) 0)
+                            (let ((candidates (avy--regex-candidates
+                                               (regexp-quote str))))
+                              (if (null candidates)
+                                  (beep)
+                                (let* ((case-fold
+                                        (or avy-case-fold-search
+                                            (string= str (downcase str))))
+                                       (unsafe (make-hash-table :test 'equal))
+                                       (safe
+                                        (let ((re (regexp-quote str))
+                                              (bufs (make-hash-table :test 'eq)))
+                                          (dolist (w (avy-window-list))
+                                            (let ((buf (window-buffer w)))
+                                              (unless (gethash buf bufs)
+                                                (puthash buf t bufs)
+                                                (with-current-buffer buf
+                                                  (let ((case-fold-search case-fold))
+                                                    (save-excursion
+                                                      (goto-char (point-min))
+                                                      (while (re-search-forward re nil t)
+                                                        (let ((ch (char-after)))
+                                                          (when ch
+                                                            (puthash
+                                                             (if case-fold (downcase ch) ch)
+                                                             t unsafe))))))))))
+                                          (cl-remove-if
+                                           (lambda (label)
+                                             (gethash (if case-fold
+                                                          (downcase label)
+                                                        label)
+                                                      unsafe))
+                                           alphabet)))
+                                       (wnd (selected-window))
+                                       (pt (point))
+                                       (window-rank (let ((ht (make-hash-table :test 'eq))
+                                                          (rank 1))
+                                                      (dolist (w (avy-window-list) ht)
+                                                        (unless (eq w wnd)
+                                                          (puthash w rank ht)
+                                                          (setq rank (1+ rank)))))))
+                                  (setq sorted
+                                        (sort (copy-sequence candidates)
+                                              (lambda (a b)
+                                                (let* ((wa (cdr a))
+                                                       (wb (cdr b))
+                                                       (a-cur (eq wa wnd))
+                                                       (b-cur (eq wb wnd)))
+                                                  (cond
+                                                   ((and a-cur (not b-cur)) t)
+                                                   ((and (not a-cur) b-cur) nil)
+                                                   ((and a-cur b-cur)
+                                                    (let ((da (abs (- (caar a) pt)))
+                                                          (db (abs (- (caar b) pt))))
+                                                      (if (= da db)
+                                                          (< (caar a) (caar b))
+                                                        (< da db))))
+                                                   (t
+                                                    (let ((ra (or (gethash wa window-rank)
+                                                                  most-positive-fixnum))
+                                                          (rb (or (gethash wb window-rank)
+                                                                  most-positive-fixnum)))
+                                                      (if (= ra rb)
+                                                          (< (caar a) (caar b))
+                                                        (< ra rb)))))))))
+                                  (let ((taken (make-hash-table :test 'eq))
+                                        (assigned (make-hash-table :test 'equal))
+                                        labeled)
+                                    (dolist (cand sorted)
+                                      (let* ((id (cand-id cand))
+                                             (prev (gethash id used-map)))
+                                        (when (and prev
+                                                   (memq prev safe)
+                                                   (not (gethash prev taken)))
+                                          (puthash prev t taken)
+                                          (puthash id prev assigned)
+                                          (push (cons cand prev) labeled))))
+                                    (let ((avail (cl-remove-if
+                                                  (lambda (label)
+                                                    (gethash label taken))
+                                                  safe)))
+                                      (dolist (cand sorted)
+                                        (let ((id (cand-id cand)))
+                                          (unless (gethash id assigned)
+                                            (let ((label (pop avail)))
+                                              (when label
+                                                (puthash label t taken)
+                                                (puthash id label assigned)
+                                                (push (cons cand label) labeled)))))))
+                                    (setq labeled (nreverse labeled)
+                                          key-to-cand nil)
+                                    (dolist (lc labeled)
+                                      (let* ((cand (car lc))
+                                             (label (cdr lc)))
+                                        (when (reusable-label-p label)
+                                          (puthash (cand-id cand) label used-map))
+                                        (push (cons label cand) key-to-cand)))
+                                    (setq key-to-cand (nreverse key-to-cand)))
+                                  (when (and (= (length sorted) 1)
+                                             avy-single-candidate-jump)
+                                    (throw 'done (car sorted)))
+                                  (dolist (cand sorted)
+                                    (let ((ov (make-overlay
+                                               (caar cand) (cdar cand)
+                                               (window-buffer (cdr cand)))))
+                                      (overlay-put ov 'face 'lazy-highlight)
+                                      (overlay-put ov 'window (cdr cand))
+                                      (overlay-put ov 'priority 0)
+                                      (push ov flash-ovs)))
+                                  (dolist (lc key-to-cand)
+                                    (let* ((cand (cdr lc))
+                                           (end (cdar cand))
+                                           (w (cdr cand))
+                                           (buf (window-buffer w))
+                                           (lbl (propertize (string (car lc))
+                                                            'face 'avy-lead-face))
+                                           (ov (with-current-buffer buf
+                                                 (cond
+                                                  ((>= end (point-max))
+                                                   (let ((o (make-overlay
+                                                             (1- end) end buf)))
+                                                     (overlay-put o 'after-string lbl)
+                                                     o))
+                                                  ((eq (char-after end) ?\n)
+                                                   (let ((o (make-overlay
+                                                             end (1+ end) buf)))
+                                                     (overlay-put
+                                                      o 'display
+                                                      (concat lbl "\n"))
+                                                     o))
+                                                  (t
+                                                   (let ((o (make-overlay
+                                                             end (1+ end) buf)))
+                                                     (overlay-put o 'display lbl)
+                                                     o))))))
+                                      (push ov flash-ovs)))))))
+                          (let ((char (read-char
+                                       (if (string= str "")
+                                           "char: "
+                                         (format "%d (%s): "
+                                                 (length sorted) str))
+                                       t)))
+                            (cond
+                             ((memq char '(27 ?\C-g))
+                              (throw 'done nil))
+                             ((= char 13)
+                              (throw 'done (car sorted)))
+                             ((memq char avy-del-last-char-by)
+                              (when (> (length str) 0)
+                                (setq str (substring str 0 -1))))
+                             ((cdr (assq char key-to-cand))
+                              (throw 'done (cdr (assq char key-to-cand))))
+                             (t
+                              (setq str (concat str (string char))))))))))
+            (mapc #'delete-overlay flash-ovs)
+            (avy--done))
+          (when res
+            (funcall avy-pre-action res)
+            (funcall (or avy-action #'avy-action-goto)
+                     (if (consp (car res)) (caar res) (car res))))))))
   :bind (("M-g l" . avy-goto-end-of-line)
          ("M-g r" . avy-resume)
          ("M-g w" . avy-goto-word-1)
-         ("M-j"   . avy-goto-char-timer)
+         ("M-j"   . avy-goto-char-flash)
          :map isearch-mode-map
          ("M-j"   . avy-isearch))
   :custom
