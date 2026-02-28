@@ -202,8 +202,8 @@ is already narrowed."
 (use-package compile
   :defer t
   :bind
-  (("C-c c" . recompile)
-   ("C-c C" . compile))
+  (("C-c c" . compile)
+   ("C-c C" . recompile))
   :custom
   (compilation-always-kill t)
   (compilation-auto-jump-to-first-error 'if-location-known)
