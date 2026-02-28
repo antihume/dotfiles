@@ -686,7 +686,7 @@ Only activates mappings for languages with installed grammars."
    consult-bookmark consult-recent-file consult-xref
    consult-source-bookmark consult-source-file-register
    consult-source-recent-file consult-source-project-recent-file
-   :preview-key '(:debounce 0.5 any))
+   :preview-key '(:debounce 0.375 any))
   (setq consult-narrow-key "C-+")
   :hook
   (consult-after-jump . my--pulse-line-after-jump))
