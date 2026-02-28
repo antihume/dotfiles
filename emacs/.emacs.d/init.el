@@ -859,6 +859,7 @@ ASDFGHJKLQWERTYUIOPZXCVBNM" nil))
                                                              end (1+ end) buf)))
                                                      (overlay-put o 'display lbl)
                                                      o))))))
+                                      (overlay-put ov 'window w)
                                       (push ov flash-ovs)))))))
                           (let ((char (read-char
                                        (if (string= str "")
