@@ -1,10 +1,35 @@
 ;; ᗜˬᗜ -*- lexical-binding: t; -*-
 
 (use-package emacs
+  :preface
+  (defun narrow-or-widen-dwim (p)
+    "Widen if buffer is narrowed, narrow-dwim otherwise.
+Dwim means: region, org-src-block, org-subtree, or
+defun, whichever applies first. Narrowing to
+org-src-block actually calls `org-edit-src-code'.
+
+With prefix P, don't widen, just narrow even if buffer
+is already narrowed."
+    (interactive "P")
+    (declare (interactive-only))
+    (cond ((and (buffer-narrowed-p) (not p)) (widen))
+          ((region-active-p)
+           (narrow-to-region (region-beginning)
+                             (region-end)))
+          ((derived-mode-p 'org-mode)
+           ;; `org-edit-src-code' is not a real narrowing
+           ;; command. Remove this first conditional if
+           ;; you don't want it.
+           (cond ((ignore-errors (org-edit-src-code) t)
+                  (delete-other-windows))
+                 ((ignore-errors (org-narrow-to-block) t))
+                 (t (org-narrow-to-subtree))))
+          ((derived-mode-p 'latex-mode)
+           (LaTeX-narrow-to-environment))
+          (t (narrow-to-defun))))
   :custom
-  (custom-file null-device)
+  (custom-file (expand-file-name "custom.el" user-emacs-directory))
   (disabled-command-function nil)
-  (text-mode-ispell-word-completion nil)
   (display-line-numbers-type 'relative)
   (fast-but-imprecise-scrolling t)
   (fill-column 80)
@@ -13,7 +38,6 @@
   (kill-do-not-save-duplicates t)
   (kill-whole-line t)
   (native-comp-async-report-warnings-errors 'silent)
-  (read-extended-command-predicate #'command-completion-default-include-p)
   (read-extended-command-predicate #'command-completion-default-include-p)
   (redisplay-skip-fontification-on-input t)
   (save-interprogram-paste-before-kill t)
@@ -31,7 +55,7 @@
   (x-stretch-cursor t)
   :config
   (set-face-attribute 'default nil
-                      :family "Iosevka SS12"
+                      :family "Iosevka SS08"
                       :height 120)
   (column-number-mode)
   (context-menu-mode)
@@ -52,7 +76,7 @@
    (prog-mode . electric-pair-local-mode)
    (prog-mode . hl-line-mode))
   :bind
-  (("C-x C-b" . ibuffer)
+  (("C-c m" . narrow-or-widen-dwim)
    ("C-x k" . kill-current-buffer)
    ("M-/" . hippie-expand)
    ("M-c" . capitalize-dwim)
@@ -63,23 +87,41 @@
 (use-package compile
   :custom
   (compilation-always-kill t)
-  (compilation-auto-jump-to-first-error 'if-location-known))
+  (compilation-scroll-output 'first-error)
+  :hook
+  (compilation-filter . ansi-color-compilation-filter))
 
 (use-package dired
   :custom
   (dired-auto-revert-buffer t)
   (dired-dwim-target t)
-  (dired-listing-switches "-alh")
+  (dired-kill-when-opening-new-dired-buffer t)
+  (dired-listing-switches "-AGFhlv --group-directories-first")
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
+  :bind (:map dired-mode-map
+              ("C-<return>" . dired-up-directory)
+              ("M-n" . dired-next-marked-file)
+              ("M-p" . dired-prev-marked-file))
   :hook
   (dired-mode . hl-line-mode))
+
+(use-package dired-x
+  :custom
+  (dired-omit-files "^\\.[^.].*\\|~$")
+  (dired-omit-verbose nil)
+  :hook
+  (dired-mode . dired-omit-mode))
 
 (use-package whitespace
   :custom
   (whitespace-style '(face trailing))
   :hook
   (prog-mode . whitespace-mode))
+
+(use-package ibuffer
+  :bind
+  ("C-x C-b" . ibuffer))
 
 (use-package isearch
   :custom
@@ -121,7 +163,7 @@
   (window-combination-resize t)
   :preface
   (let ((windows nil) (index 0))
-    (defun my/other-window-mru ()
+    (defun other-window-mru ()
       "Cycle windows in most-recently-used order."
       (interactive)
       (if (one-window-p t)
@@ -134,9 +176,9 @@
                 index 1))
         (select-window (nth index windows) 'norecord))))
   :bind
-  (("C-x o" . my/other-window-mru)
+  (("C-x o" . other-window-mru)
    :repeat-map other-window-repeat-map
-   ("o" . my/other-window-mru)))
+   ("o" . other-window-mru)))
 
 (use-package eglot
   :custom
@@ -169,7 +211,8 @@
   (vc-handled-backends '(Git)))
 
 (use-package autorevert
-  :init (global-auto-revert-mode)
+  :init
+  (global-auto-revert-mode)
   :custom
   (auto-revert-avoid-polling t)
   (global-auto-revert-non-file-buffers t))
@@ -186,7 +229,7 @@
   (modus-themes-mixed-fonts t)
   (modus-themes-italic-constructs t)
   :config
-  (modus-themes-load-theme 'ef-dream))
+  (modus-themes-load-theme 'ef-arbutus))
 
 (use-package vertico
   :ensure t
@@ -198,8 +241,10 @@
 
 (use-package vertico-repeat
   :after vertico
-  :hook (minibuffer-setup . vertico-repeat-save)
-  :bind ("C-c r" . vertico-repeat))
+  :hook
+  (minibuffer-setup . vertico-repeat-save)
+  :bind
+  ("C-c r" . vertico-repeat))
 
 (use-package vertico-directory
   :after vertico
@@ -291,8 +336,8 @@
   (corfu-preselect 'prompt)
   :bind
   (:map corfu-map
-   ("<remap> <next-line>" . nil)
-   ("<remap> <previous-line>" . nil))
+        ("<remap> <next-line>" . nil)
+        ("<remap> <previous-line>" . nil))
   :config
   (keymap-set corfu-map "RET" `( menu-item "" nil :filter
                                  ,(lambda (&optional _)
@@ -303,9 +348,18 @@
   (corfu-history-mode)
   (corfu-popupinfo-mode))
 
+(use-package cape
+  :ensure t
+  :bind
+  ("M-+" . cape-prefix-map)
+  :init
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-elisp-block))
+
 (use-package marginalia
   :ensure t
-  :config
+  :init
   (marginalia-mode))
 
 (use-package embark
@@ -379,3 +433,4 @@ and `which-key-idle-secondary-delay' for subsequent updates."
   :defer t
   :custom
   (magit-define-global-key-bindings 'recommended))
+
