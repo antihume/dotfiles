@@ -76,7 +76,8 @@ is already narrowed."
    (prog-mode . electric-pair-local-mode)
    (prog-mode . hl-line-mode))
   :bind
-  (("C-c m" . narrow-or-widen-dwim)
+  (("C-c d" . duplicate-dwim)
+   ("C-c m" . narrow-or-widen-dwim)
    ("C-x k" . kill-current-buffer)
    ("M-/" . hippie-expand)
    ("M-c" . capitalize-dwim)
@@ -99,19 +100,28 @@ is already narrowed."
   (dired-listing-switches "-AGFhlv --group-directories-first")
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
-  :bind (:map dired-mode-map
-              ("C-<return>" . dired-up-directory)
-              ("M-n" . dired-next-marked-file)
-              ("M-p" . dired-prev-marked-file))
   :hook
+  (dired-mode . dired-hide-details-mode)
   (dired-mode . hl-line-mode))
 
+(use-package wdired
+  :after dired
+  :custom
+  (wdired-allow-to-change-permissions t))
+
 (use-package dired-x
+  :after dired
   :custom
   (dired-omit-files "^\\.[^.].*\\|~$")
   (dired-omit-verbose nil)
   :hook
   (dired-mode . dired-omit-mode))
+
+(use-package project
+  :custom
+  (project-vc-extra-root-markers
+   '(".project" "Makefile" "setup.py" "package.json"
+     "Cargo.toml" "go.mod")))
 
 (use-package whitespace
   :custom
@@ -130,14 +140,17 @@ is already narrowed."
   (isearch-lazy-highlight 'all-windows))
 
 (use-package recentf
-  :init (recentf-mode)
-  :bind ("C-x C-r" . recentf-open))
+  :init
+  (recentf-mode)
+  :bind
+  ("C-x C-r" . recentf-open))
 
 (use-package savehist
   :custom
   (savehist-additional-variables
    '(kill-ring search-ring regexp-search-ring compile-history corfu-history))
-  :init (savehist-mode))
+  :init
+  (savehist-mode))
 
 (use-package tab-bar
   :custom
@@ -281,39 +294,39 @@ is already narrowed."
 
 (use-package consult
   :ensure t
-  :bind (
-         ("C-x b" . consult-buffer)
-         ("C-x 4 b" . consult-buffer-other-window)
-         ("C-x 5 b" . consult-buffer-other-frame)
-         ("C-x t b" . consult-buffer-other-tab)
-         ("C-x r b" . consult-bookmark)
-         ("C-x p b" . consult-project-buffer)
-         ("M-#" . consult-register-load)
-         ("M-'" . consult-register-store)
-         ("M-y" . consult-yank-pop)
-         ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flymake)
-         ("M-g o" . consult-outline)
-         ("M-g m" . consult-mark)
-         ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
-         ("M-g I" . consult-imenu-multi)
-         ("M-s d" . consult-find)
-         ("M-s c" . consult-locate)
-         ("M-s g" . consult-grep)
-         ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
-         ("M-s l" . consult-line)
-         ("M-s L" . consult-line-multi)
-         ("M-s e" . consult-isearch-history)
-         :map isearch-mode-map
-         ("M-e" . consult-isearch-history)
-         ("M-s e" . consult-isearch-history)
-         ("M-s l" . consult-line)
-         ("M-s L" . consult-line-multi)
-         :map minibuffer-local-map
-         ("M-s" . consult-history)
-         ("M-r" . consult-history))
+  :bind
+  (("C-x b" . consult-buffer)
+   ("C-x 4 b" . consult-buffer-other-window)
+   ("C-x 5 b" . consult-buffer-other-frame)
+   ("C-x t b" . consult-buffer-other-tab)
+   ("C-x r b" . consult-bookmark)
+   ("C-x p b" . consult-project-buffer)
+   ("M-#" . consult-register-load)
+   ("M-'" . consult-register-store)
+   ("M-y" . consult-yank-pop)
+   ("M-g e" . consult-compile-error)
+   ("M-g f" . consult-flymake)
+   ("M-g o" . consult-outline)
+   ("M-g m" . consult-mark)
+   ("M-g k" . consult-global-mark)
+   ("M-g i" . consult-imenu)
+   ("M-g I" . consult-imenu-multi)
+   ("M-s d" . consult-find)
+   ("M-s c" . consult-locate)
+   ("M-s g" . consult-grep)
+   ("M-s G" . consult-git-grep)
+   ("M-s r" . consult-ripgrep)
+   ("M-s l" . consult-line)
+   ("M-s L" . consult-line-multi)
+   ("M-s e" . consult-isearch-history)
+   :map isearch-mode-map
+   ("M-e" . consult-isearch-history)
+   ("M-s e" . consult-isearch-history)
+   ("M-s l" . consult-line)
+   ("M-s L" . consult-line-multi)
+   :map minibuffer-local-map
+   ("M-s" . consult-history)
+   ("M-r" . consult-history))
   :custom
   (consult-narrow-key "C-+")
   (register-preview-delay 0.5)
@@ -336,8 +349,8 @@ is already narrowed."
   (corfu-preselect 'prompt)
   :bind
   (:map corfu-map
-        ("<remap> <next-line>" . nil)
-        ("<remap> <previous-line>" . nil))
+        ([remap next-line] . nil)
+        ([remap previous-line] . nil))
   :config
   (keymap-set corfu-map "RET" `( menu-item "" nil :filter
                                  ,(lambda (&optional _)
