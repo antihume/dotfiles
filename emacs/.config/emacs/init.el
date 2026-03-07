@@ -28,6 +28,8 @@ is already narrowed."
            (LaTeX-narrow-to-environment))
           (t (narrow-to-defun))))
   :custom
+  (auto-window-vscroll nil)
+  (cursor-type 'bar)
   (custom-file (expand-file-name "custom.el" user-emacs-directory))
   (disabled-command-function nil)
   (display-line-numbers-type 'relative)
@@ -40,23 +42,21 @@ is already narrowed."
   (native-comp-async-report-warnings-errors 'silent)
   (read-extended-command-predicate #'command-completion-default-include-p)
   (redisplay-skip-fontification-on-input t)
+  (ring-bell-function 'ignore)
   (save-interprogram-paste-before-kill t)
   (scroll-conservatively 1000)
   (scroll-preserve-screen-position t)
   (sentence-end-double-space nil)
   (set-mark-command-repeat-pop t)
-  (show-paren-context-when-offscreen 'overlay)
   (tab-always-indent 'complete)
   (tab-width 4)
   (text-mode-ispell-word-completion nil)
   (use-dialog-box nil)
   (use-file-dialog nil)
   (use-short-answers t)
+  (window-combination-resize t)
   (x-stretch-cursor t)
-  :config
-  (set-face-attribute 'default nil
-                      :family "Iosevka SS08"
-                      :height 120)
+  :init
   (column-number-mode)
   (context-menu-mode)
   (delete-selection-mode)
@@ -70,11 +70,11 @@ is already narrowed."
   (save-place-mode)
   (scroll-bar-mode -1)
   (tool-bar-mode -1)
-  (which-key-mode)
+  :config
+  (set-face-attribute 'default nil :family "Iosevka SS08" :height 120)
   :hook
   ((prog-mode . display-line-numbers-mode)
-   (prog-mode . electric-pair-local-mode)
-   (prog-mode . hl-line-mode))
+   (prog-mode . electric-pair-local-mode))
   :bind
   (("C-c d" . duplicate-dwim)
    ("C-c m" . narrow-or-widen-dwim)
@@ -96,13 +96,14 @@ is already narrowed."
   :custom
   (dired-auto-revert-buffer t)
   (dired-dwim-target t)
+  (dired-free-space nil)
   (dired-kill-when-opening-new-dired-buffer t)
   (dired-listing-switches "-AGFhlv --group-directories-first")
+  (dired-no-confirm t)
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
   :hook
-  (dired-mode . dired-hide-details-mode)
-  (dired-mode . hl-line-mode))
+  (dired-mode . dired-hide-details-mode))
 
 (use-package wdired
   :after dired
@@ -123,21 +124,49 @@ is already narrowed."
    '(".project" "Makefile" "setup.py" "package.json"
      "Cargo.toml" "go.mod")))
 
+(use-package org
+  :custom
+  (org-agenda-files '("~/org"))
+  (org-directory "~/org")
+  (org-log-done 'time)
+  (org-preview-latex-default-process 'dvisvgm)
+  (org-return-follows-link t)
+  (org-startup-folded 'content)
+  (org-startup-with-latex-preview t)
+  :config
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '((emacs-lisp . t)
+                                 (python . t)
+                                 (shell . t)))
+  (plist-put org-format-latex-options :scale 2.0)
+  :hook
+  (org-mode . variable-pitch-mode))
+
 (use-package whitespace
   :custom
   (whitespace-style '(face trailing))
-  :hook
-  (prog-mode . whitespace-mode))
+  :init
+  (global-whitespace-mode))
 
 (use-package ibuffer
+  :custom
+  (ibuffer-expert t)
   :bind
-  ("C-x C-b" . ibuffer))
+  ("C-x C-b" . ibuffer-other-window))
+
+(use-package hl-line
+  :init
+  (global-hl-line-mode)
+  :hook
+  ((prog-mode text-mode) .(lambda ()
+                            (setq-local global-hl-line-mode nil))))
 
 (use-package isearch
   :custom
   (isearch-allow-scroll t)
   (isearch-lazy-count t)
-  (isearch-lazy-highlight 'all-windows))
+  (isearch-lazy-highlight 'all-windows)
+  (lazy-highlight-initial-delay 0))
 
 (use-package recentf
   :init
@@ -154,8 +183,8 @@ is already narrowed."
 
 (use-package tab-bar
   :custom
-  (tab-bar-new-tab-choice #'scratch-buffer)
-  (tab-bar-show nil)
+  (tab-bar-new-tab-choice "*scratch*")
+  (tab-bar-show 1)
   :config
   (tab-bar-history-mode)
   (tab-bar-mode))
@@ -171,9 +200,6 @@ is already narrowed."
   (uniquify-buffer-name-style 'forward))
 
 (use-package window
-  :custom
-  (auto-window-vscroll nil)
-  (window-combination-resize t)
   :preface
   (let ((windows nil) (index 0))
     (defun other-window-mru ()
@@ -195,11 +221,8 @@ is already narrowed."
 
 (use-package eglot
   :custom
-  (eglot-autoshutdown t))
-
-(use-package flymake
-  :custom
-  (flymake-show-diagnostics-at-end-of-line 'short))
+  (eglot-autoshutdown t)
+  (eglot-events-buffer-config 0))
 
 (use-package files
   :init
@@ -218,6 +241,10 @@ is already narrowed."
   (require-final-newline t)
   (version-control t))
 
+(use-package paren
+  :custom
+  (show-paren-context-when-offscreen 'overlay))
+
 (use-package vc
   :custom
   (vc-follow-symlinks t)
@@ -229,6 +256,10 @@ is already narrowed."
   :custom
   (auto-revert-avoid-polling t)
   (global-auto-revert-non-file-buffers t))
+
+(use-package which-key
+  :init
+  (which-key-mode))
 
 (use-package ef-themes
   :ensure t
@@ -242,7 +273,7 @@ is already narrowed."
   (modus-themes-mixed-fonts t)
   (modus-themes-italic-constructs t)
   :config
-  (modus-themes-load-theme 'ef-arbutus))
+  (modus-themes-load-theme 'ef-dream))
 
 (use-package vertico
   :ensure t
@@ -251,13 +282,6 @@ is already narrowed."
   (vertico-resize t)
   :init
   (vertico-mode))
-
-(use-package vertico-repeat
-  :after vertico
-  :hook
-  (minibuffer-setup . vertico-repeat-save)
-  :bind
-  ("C-c r" . vertico-repeat))
 
 (use-package vertico-directory
   :after vertico
@@ -274,7 +298,8 @@ is already narrowed."
                                   (kill-ring reverse)
                                   (file flat (:keymap . vertico-directory-map))
                                   (t flat)))
-  (vertico-multiform-commands '((consult-compile-error reverse)
+  (vertico-multiform-commands '((consult-buffer reverse)
+                                (consult-compile-error reverse)
                                 (consult-flymake reverse)
                                 (consult-global-mark reverse)
                                 (consult-imenu reverse)
@@ -283,6 +308,19 @@ is already narrowed."
                                 (consult-outline reverse)))
   :init
   (vertico-multiform-mode))
+
+(use-package vertico-quick
+  :after vertico
+  :bind
+  (:map vertico-map
+        ("M-j" . vertico-quick-exit)))
+
+(use-package vertico-repeat
+  :after vertico
+  :hook
+  (minibuffer-setup . vertico-repeat-save)
+  :bind
+  ("C-c r" . vertico-repeat))
 
 (use-package orderless
   :ensure t
@@ -363,7 +401,7 @@ is already narrowed."
 
 (use-package cape
   :ensure t
-  :bind
+  :bind-keymap
   ("M-+" . cape-prefix-map)
   :init
   (add-hook 'completion-at-point-functions #'cape-dabbrev)
@@ -447,3 +485,35 @@ and `which-key-idle-secondary-delay' for subsequent updates."
   :custom
   (magit-define-global-key-bindings 'recommended))
 
+(use-package expreg
+  :ensure t
+  :config
+  (add-hook 'text-mode-hook
+            (lambda ()
+              (add-to-list 'expreg-functions #'expreg--sentence)))
+  :bind
+  (("C--" . expreg-contract)
+   ("C-=" . expreg-expand)))
+
+(use-package avy
+  :ensure t
+  :preface
+  (defun avy-action-embark (pt)
+    (unwind-protect
+        (save-excursion
+          (goto-char pt)
+          (embark-act))
+      (select-window
+       (cdr (ring-ref avy-ring 0))))
+    t)
+  :bind
+  (("M-j" . avy-goto-word-1)
+   :map isearch-mode-map
+   ("M-j" . avy-isearch))
+  :custom
+  (avy-background t)
+  (avy-timeout-seconds 0.35)
+  :config
+  (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark))
+
+;;; init.el ends here
